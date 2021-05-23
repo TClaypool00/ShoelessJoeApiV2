@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20210218220109_AddedUser.cs" />
+    <Compile Remove="Migrations\20210218220109_AddedUser.Designer.cs" />
+    <Compile Remove="Migrations\20210218225206_AddComments.cs" />
+    <Compile Remove="Migrations\20210218225206_AddComments.Designer.cs" />
+    <Compile Remove="Migrations\20210218230330_CompositePrimaryKey.cs" />
+    <Compile Remove="Migrations\20210218230330_CompositePrimaryKey.Designer.cs" />
+    <Compile Remove="Migrations\20210220022653_AddedModelManufacter.cs" />
+    <Compile Remove="Migrations\20210220022653_AddedModelManufacter.Designer.cs" />
+    <Compile Remove="Migrations\20210228201144_ImgGroupFix.cs" />
+    <Compile Remove="Migrations\20210228201144_ImgGroupFix.Designer.cs" />
+    <Compile Remove="Migrations\20210228201412_ImgGroupFix.cs" />
+    <Compile Remove="Migrations\20210228201412_ImgGroupFix.Designer.cs" />
+    <Compile Remove="Migrations\20210301175245_ImgShoeOneFix.cs" />
+    <Compile Remove="Migrations\20210301175245_ImgShoeOneFix.Designer.cs" />
+    <Compile Remove="Migrations\20210301175336_ImgShoeOneFix.cs" />
+    <Compile Remove="Migrations\20210301175336_ImgShoeOneFiqx.Designer.cs" />
+    <Compile Remove="Migrations\20210301175715_ImgShoeOneFix2.cs" />
+    <Compile Remove="Migrations\20210301175715_ImgShoeOneFix2.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShoelessJoeWebApi.Core\ShoelessJoeWebApi.Core.csproj" />
+  </ItemGroup>
+
+</Project>
