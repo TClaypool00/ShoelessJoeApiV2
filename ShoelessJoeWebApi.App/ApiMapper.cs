@@ -437,8 +437,21 @@ namespace ShoelessJoeWebApi.App
                 BothShoes = shoe.BothShoes,
                 LeftSize = shoe.LeftSize,
                 RightSize = shoe.RightSize,
-                Model = await modelService.GetModelAsync(shoe.ManufacterId),
+                Model = await modelService.GetModelAsync(shoe.ModelId),
                 User = await service.GetUserAsync(shoe.UserId)
+            };
+        }
+
+        public async static Task<CoreShoe> MapShoe(int shoeId, bool? bothSheos, double? leftShoeSize, double? rightShoeSize, int modelId, int userId, IUserService service, IModelService modelService)
+        {
+            return new CoreShoe
+            {
+                ShoeId = shoeId,
+                BothShoes = bothSheos,
+                LeftSize = leftShoeSize,
+                RightSize = rightShoeSize,
+                Model = await modelService.GetModelAsync(modelId),
+                User = await service.GetUserAsync(userId)
             };
         }
 

@@ -4,6 +4,7 @@ using ShoelessJoeWebApi.Core.Interfaces;
 using ShoelessJoeWebApi.DataAccess.DataModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,12 +21,19 @@ namespace ShoelessJoeWebApi.DataAccess.Services
 
         public async Task<int> AddShoeAsync(CoreShoe shoe)
         {
-            var transformedShoe = Mapper.MapShoe(shoe);
+            try
+            {
+                var transformedShoe = Mapper.MapShoe(shoe);
 
-            _context.Shoes.Add(transformedShoe);
-            await SaveAsync();
+                _context.Shoes.Add(transformedShoe);
+                await SaveAsync();
 
-            return transformedShoe.ShoeId;
+                return transformedShoe.ShoeId;
+            }
+            catch(Exception)
+            {
+                return -1;
+            }
         }
 
         public async Task DeleteShoeAsync(int shoeId)
@@ -88,7 +96,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .FirstOrDefaultAsync(s => s.ShoeId == shoeId);
         }
 
-        private static List<CoreShoe> SearchResults(List<Shoe> shoes, string search)
+        static List<CoreShoe> SearchResults(List<Shoe> shoes, string search)
         {
             return shoes.FindAll(s => s.BothShoes.ToString().Contains(search) ||
             s.RightSize.ToString().Contains(search) ||
