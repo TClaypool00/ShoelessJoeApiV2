@@ -1,11 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.Helpers;
 using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoelessJoeWebApi.App.Controllers
@@ -17,14 +23,17 @@ namespace ShoelessJoeWebApi.App.Controllers
         public IUserService Service { get; }
         //private readonly ILogger<UsersController> _logger;
         private readonly ISchoolService _schoolService;
+        private readonly AppSettings _appSettings;
 
-        public UsersController(IUserService service, ISchoolService schoolService)
+        public UsersController(IUserService service, ISchoolService schoolService, IOptions<AppSettings> appSettings)
         {
             Service = service;
             _schoolService = schoolService;
+            _appSettings = appSettings.Value;
         }
 
         // GET: api/Users
+        [Authorize]
         [HttpGet]
         //[ProducesResponseType(typeof(List<ApiUser>))]
         public async Task<ActionResult> GetUsers([FromQuery] string search = null, int? userId = null, bool? isAdmin = null, bool? hasStudent = null, int? schoolId = null)
@@ -194,7 +203,9 @@ namespace ShoelessJoeWebApi.App.Controllers
                 if (!validPassword)
                     return BadRequest("Password is incorrect");
 
-                return Ok(ApiMapper.MapUser(user, false));
+                var token = GenerateJwtToken(user);
+
+                return Ok(ApiMapper.MapUser(user, false, token));
             }
             catch(NullReferenceException)
             {
@@ -264,6 +275,22 @@ namespace ShoelessJoeWebApi.App.Controllers
                 return noUser + $"Id of {id}.";
             else
                 return noUser + $"email address of {email}.";
+        }
+
+        string GenerateJwtToken(CoreUser user)
+        {
+            //Generate token that is valid for 7 days
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         static List<ApiUser> ConvertList(List<CoreUser> users, List<ApiUser> apiUsers)

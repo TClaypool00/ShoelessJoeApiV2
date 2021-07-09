@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using ShoelessJoeWebApi.App.Helpers;
 using ShoelessJoeWebApi.Core.Interfaces;
 using ShoelessJoeWebApi.DataAccess.DataModels;
 using ShoelessJoeWebApi.DataAccess.Services;
@@ -59,6 +60,8 @@ namespace ShoelessJoeWebApi.App
                         .AllowAnyMethod()
                         .AllowAnyHeader());
             });
+            // configure strongly typed settings object
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -82,6 +85,8 @@ namespace ShoelessJoeWebApi.App
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseAuthorization();
 

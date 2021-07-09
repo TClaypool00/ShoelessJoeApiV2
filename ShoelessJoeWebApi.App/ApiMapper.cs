@@ -534,7 +534,7 @@ namespace ShoelessJoeWebApi.App
          * |                             |
          * -------------------------------
          */
-        public static ApiUser MapUser(CoreUser user, bool includePassword = true)
+        public static ApiUser MapUser(CoreUser user, bool includePassword = true, string token = null)
         {
             var newUser = new ApiUser
             {
@@ -547,6 +547,10 @@ namespace ShoelessJoeWebApi.App
 
             if (includePassword)
                 newUser.Password = user.Password;
+
+            if (token != null)
+                newUser.Token = token;
+
             try
             {
                 newUser.SchoolId = user.School.SchoolId;
