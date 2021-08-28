@@ -31,7 +31,7 @@ namespace ShoelessJoeWebApi.DataAccess.DataModels
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(SecretConfig.connectionString);
+                optionsBuilder.UseSqlServer(SecretConfig.ConnectionString);
             }
         }
 
