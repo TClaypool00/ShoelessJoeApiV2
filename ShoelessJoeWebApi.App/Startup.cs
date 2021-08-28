@@ -29,7 +29,7 @@ namespace ShoelessJoeWebApi.App
             services.AddControllers();
             //Database connection
             services.AddDbContext<ShoelessdevContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("SholessJoe")));
+                options.UseSqlServer(SecretConfig.ConnectionString));
             //Dependency Injection
             services.AddScoped<IAddressService, AddressService>();
             services.AddScoped<ICommentService, CommentService>();
