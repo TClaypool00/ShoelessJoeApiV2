@@ -33,7 +33,7 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         // GET: api/Users
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         //[ProducesResponseType(typeof(List<ApiUser>))]
         public async Task<ActionResult> GetUsers([FromQuery] string search = null, int? userId = null, bool? isAdmin = null, bool? hasStudent = null, int? schoolId = null)
@@ -99,12 +99,15 @@ namespace ShoelessJoeWebApi.App.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, ApiUser user)
         {
-            if (user.IsAdmin)
+            var oldUser = await Service.GetUserAsync(id);
+
+
+            if (oldUser.IsAdmin != true && user.IsAdmin)
                 return BadRequest("You must be approved to be an Admin");
 
             try
             {
-                await Service.UpdateUserAsync(id, await ApiMapper.MapUser(user, Service, _schoolService, id));
+                await Service.UpdateUserAsync(await ApiMapper.MapUser(user, Service, _schoolService, id), null, oldUser);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -117,9 +120,15 @@ namespace ShoelessJoeWebApi.App.Controllers
                     throw;
                 }
             }
+            catch (ArgumentException)
+            {
+                return BadRequest("An internal error has occured.");
+            }
             catch (Exception e)
             {
-                return StatusCode(500, e);
+                Error.SendErrorMessage(e, Error.ControllerNames.Users);
+
+                return StatusCode(500);
             }
 
             return Ok("User has been updated!");
@@ -142,7 +151,7 @@ namespace ShoelessJoeWebApi.App.Controllers
                             {
                                 user.Password = model.NewPassword;
 
-                                await Service.UpdateUserAsync(user.UserId, user);
+                                await Service.UpdateUserAsync(user, user.UserId);
 
                                 return Ok("Password has been updated!");
                             }
@@ -175,6 +184,11 @@ namespace ShoelessJoeWebApi.App.Controllers
             if (!Service.CheckPassword(user.Password))
                 return BadRequest("Your password does not meet our requirements");
 
+            if (await Service.EmailExistAsync(user.Email))
+            {
+                return BadRequest("A user with this email arleady exist.");
+            }
+
             try
             {
                 var resource = await ApiMapper.MapUser(user, Service, _schoolService);
@@ -186,7 +200,9 @@ namespace ShoelessJoeWebApi.App.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(500, e);
+                Error.SendErrorMessage(e, Error.ControllerNames.Users);
+
+                return StatusCode(500, "Something went wrong");
             }
         }
 
