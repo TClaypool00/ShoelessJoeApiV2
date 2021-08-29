@@ -579,7 +579,7 @@ namespace ShoelessJoeWebApi.App
                     user.Password = coreUser.Password;
             }
             else
-                BCrypt.Net.BCrypt.HashPassword(user.Password);
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
 
             var newUser = new CoreUser
