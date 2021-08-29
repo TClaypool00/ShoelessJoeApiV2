@@ -2,6 +2,7 @@
 using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using ShoelessJoeWebApi.DataAccess.DataModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -91,9 +92,28 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateUserAsync(int id, CoreUser user)
+        public async Task UpdateUserAsync(CoreUser user, int? id = null, CoreUser oldUser = null)
         {
-            _context.Entry(await FindUserAsync(id)).CurrentValues.SetValues(Mapper.MapUser(user));
+            User dbUser;
+
+            if (id is null && oldUser is null)
+            {
+                throw new ArgumentException();
+            }
+            else
+            {
+                ;
+                if (id is null)
+                {
+                    dbUser = await FindUserAsync(id);
+                }
+                else
+                {
+                    dbUser = Mapper.MapUser(oldUser);
+                }
+            }
+
+            _context.Entry(dbUser).CurrentValues.SetValues(Mapper.MapUser(user));
 
             await SaveAsync();
         }
@@ -115,6 +135,11 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 u.Email.ToLower().Contains(search.ToLower()) ||
                 u.IsAdmin.ToString().Contains(search)
                 ).Select(Mapper.MapUser).ToList();
+        }
+
+        public Task<bool> EmailExistAsync(string email)
+        {
+            return _context.Users.AnyAsync(a => a.Email == email);
         }
     }
 }

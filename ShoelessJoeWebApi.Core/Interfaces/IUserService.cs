@@ -12,9 +12,11 @@ namespace ShoelessJoeWebApi.Core.Interfaces
 
         Task<bool> UserExistAsync(int id);
 
+        Task<bool> EmailExistAsync(string email);
+
         Task AddUserAsync(CoreUser user);
 
-        Task UpdateUserAsync(int id, CoreUser user);
+        Task UpdateUserAsync(CoreUser user, int? id = null, CoreUser oldUser = null);
 
         Task DeleteUserAsync(int id);
 
