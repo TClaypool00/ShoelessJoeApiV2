@@ -12,7 +12,9 @@ namespace ShoelessJoeWebApi.Core.Interfaces
 
         Task<bool> ShoeExistAsync(int shoeId);
 
-        Task<int> AddShoeAsync(CoreShoe shoe);
+        Task<CoreShoe> AddShoeAsync(CoreShoe shoe);
+
+        Task<List<int>> DeleteShoesAsync(List<int> ids);
 
         Task UpdateShoeAsync(int shoeId, CoreShoe shoe);
 

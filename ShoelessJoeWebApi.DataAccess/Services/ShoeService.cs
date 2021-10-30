@@ -19,7 +19,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             _context = context;
         }
 
-        public async Task<int> AddShoeAsync(CoreShoe shoe)
+        public async Task<CoreShoe> AddShoeAsync(CoreShoe shoe)
         {
             try
             {
@@ -28,11 +28,13 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 _context.Shoes.Add(transformedShoe);
                 await SaveAsync();
 
-                return transformedShoe.ShoeId;
+                shoe.ShoeId = transformedShoe.ShoeId;
+
+                return shoe;
             }
             catch(Exception)
             {
-                return -1;
+                return null;
             }
         }
 
@@ -41,6 +43,26 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             _context.Shoes.Remove(await FindShoeAsync(shoeId, _context));
 
             await SaveAsync();
+        }
+
+        public async Task<List<int>> DeleteShoesAsync(List<int> ids)
+        {
+            var undeletedIds = new List<int>();
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                try
+                {
+                    await DeleteShoeAsync(ids[i]);
+                }
+                catch
+                {
+                    undeletedIds.Add(ids[i]);
+                    continue;
+                }
+            }
+
+            return undeletedIds;
         }
 
         public async Task<CoreShoe> GetShoeAsync(int shoeId)
@@ -53,6 +75,9 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             var shoes = await _context.Shoes
                 .Include(u => u.User)
                 .Include(a => a.Model)
+                .ThenInclude(m => m.Manufacter)
+                .ThenInclude(b => b.Address)
+                .ThenInclude(s => s.State)
                 .ToListAsync();
 
             List<CoreShoe> coreShoes;
@@ -93,6 +118,10 @@ namespace ShoelessJoeWebApi.DataAccess.Services
         {
             return await context.Shoes
                 .Include(u => u.User)
+                .Include(a => a.Model)
+                .ThenInclude(m => m.Manufacter)
+                .ThenInclude(b => b.Address)
+                .ThenInclude(s => s.State)
                 .FirstOrDefaultAsync(s => s.ShoeId == shoeId);
         }
 

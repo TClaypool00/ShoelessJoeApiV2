@@ -116,16 +116,16 @@ namespace ShoelessJoeWebApi.App.Controllers
 
             try
             {
-                int shoeId = await _service.AddShoeAsync(await ApiMapper.MapShoe(shoe.ShoeId, shoe.BothShoes, shoe.LeftSize, shoe.RightSize, shoe.ModelId, shoe.UserId, UserService, _modelService));
+                var coreShoe = await _service.AddShoeAsync(await ApiMapper.MapShoe(shoe.ShoeId, shoe.BothShoes, shoe.LeftSize, shoe.RightSize, shoe.ModelId, shoe.UserId, UserService, _modelService));
 
-                if (shoeId is -1)
+                if (coreShoe is null)
                     return BadRequest("Something went wrong. Try again");
                 else
                 {
                     string userFolder = $@"{Utils.ServerFolder}user{shoe.UserId}";
-                    string shoeFolder = $@"{userFolder}\shoe{shoeId}";
+                    string shoeFolder = $@"{userFolder}\shoe{coreShoe.ShoeId}";
 
-                    if (Directory.Exists(userFolder))
+                    if (!Directory.Exists(userFolder))
                         Directory.CreateDirectory(userFolder);
 
                     Directory.CreateDirectory(shoeFolder);
@@ -138,7 +138,7 @@ namespace ShoelessJoeWebApi.App.Controllers
                         LeftShoeRight = await Utils.FileUpload(shoe.LeftShoeFront, shoeFolder)
                     };
 
-                    await _imageService.AddImageAsync(await ApiMapper.MapImage(image, _service));
+                    await _imageService.AddImageAsync(ApiMapper.MapImage(image, coreShoe));
                 }
 
                 return Ok("Shoe has been created!");
@@ -162,6 +162,31 @@ namespace ShoelessJoeWebApi.App.Controllers
                 return NotFound(NoShoeWithId(id));
             }
             return Ok("Shoe has been deleted!");
+        }
+
+        [HttpDelete("multi")]
+        public async Task<ActionResult> DeleteShoes(List<int> ids)
+        {
+            try
+            {
+                var list = await _service.DeleteShoesAsync(ids);
+
+                if (list.Count == 0)
+                {
+                    return Ok("All shoes were deleted");
+                }
+                else
+                {
+                    return BadRequest($"The following shoes were not deleted: {list}");
+                }
+
+            }
+            catch(Exception)
+            {
+                return StatusCode(500, "Something went wrong");
+            }
+
+
         }
 
         static string NoShoesFound(string search, int? userId, int? modelId)
