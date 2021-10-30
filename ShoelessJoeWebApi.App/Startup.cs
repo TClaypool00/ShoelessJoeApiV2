@@ -56,7 +56,7 @@ namespace ShoelessJoeWebApi.App
             services.AddCors(options =>
             {
                 options.AddPolicy(_corsPolicy, builder =>
-                    builder.WithOrigins("https://localhost:44303")
+                    builder.WithOrigins("http://localhost:3000")
                         .AllowAnyMethod()
                         .AllowAnyHeader());
             });
