@@ -189,6 +189,11 @@ namespace ShoelessJoeWebApi.App.Controllers
                 return BadRequest("A user with this email arleady exist.");
             }
 
+            if (!user.CheckPassword())
+            {
+                return BadRequest("Passwords don't match");
+            }
+
             try
             {
                 var resource = await ApiMapper.MapUser(user, Service, _schoolService);
