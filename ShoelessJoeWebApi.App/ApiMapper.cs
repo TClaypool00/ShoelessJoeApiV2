@@ -466,11 +466,11 @@ namespace ShoelessJoeWebApi.App
             return new ApiShoeImg
             {
                 ImgGroupId = image.ImgGroupId,
-                LeftShoeLeft = image.LeftShoeLeft,
-                LeftShoeRight = image.LeftShoeRight,
+                LeftShoeLeft = Utils.FormatFileName(image.LeftShoeLeft, image.Shoe.User.UserId, image.Shoe.ShoeId),
+                LeftShoeRight = Utils.FormatFileName(image.LeftShoeRight, image.Shoe.User.UserId, image.Shoe.ShoeId),
 
-                RightShoeLeft = image.RightShoeLeft,
-                RightShoeRight = image.RightShoeRight,
+                RightShoeLeft = Utils.FormatFileName(image.RightShoeLeft, image.Shoe.User.UserId, image.Shoe.ShoeId),
+                RightShoeRight = Utils.FormatFileName(image.RightShoeRight, image.Shoe.User.UserId, image.Shoe.ShoeId),
                 HasComment = image.HasComment,
 
                 ShoeId = image.Shoe.ShoeId,
@@ -487,7 +487,7 @@ namespace ShoelessJoeWebApi.App
             };
         }
 
-        public async static Task<CoreShoeImg> MapImage(ApiShoeImg image, IShoeService service)
+        public static CoreShoeImg MapImage(ApiShoeImg image, CoreShoe shoe)
         {
             return new CoreShoeImg
             {
@@ -500,7 +500,24 @@ namespace ShoelessJoeWebApi.App
                 RightShoeRight = image.RightShoeRight,
                 HasComment = image.HasComment,
 
-                Shoe = await service.GetShoeAsync(image.ShoeId)
+                Shoe = shoe
+            };
+        }
+
+        public async static Task<CoreShoeImg> MapImage(ApiShoeImg image, IShoeService service, int id)
+        {
+            return new CoreShoeImg
+            {
+                ImgGroupId = image.ImgGroupId,
+
+                LeftShoeLeft = image.LeftShoeLeft,
+                LeftShoeRight = image.LeftShoeRight,
+
+                RightShoeLeft = image.RightShoeLeft,
+                RightShoeRight = image.RightShoeRight,
+                HasComment = image.HasComment,
+
+                Shoe = await service.GetShoeAsync(id)
             };
         }
 
