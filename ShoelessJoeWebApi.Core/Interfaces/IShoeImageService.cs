@@ -8,7 +8,7 @@ namespace ShoelessJoeWebApi.Core.Interfaces
     {
         Task<List<CoreShoeImg>> GetAllImagesAsync(string search = null, int? userId = null);
 
-        Task<CoreShoeImg> GetImageAsync(int imageId = 0, int shoeId = 0);
+        Task<CoreShoeImg> GetImageAsync(int? imageId = null, int? shoeId = null);
 
         Task<bool> ImageExistAsync(int imageId);
 

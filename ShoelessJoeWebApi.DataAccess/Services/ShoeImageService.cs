@@ -55,12 +55,12 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             return coreShoeImgs;
         }
 
-        public async Task<CoreShoeImg> GetImageAsync(int imageId = 0, int shoeId = 0)
+        public async Task<CoreShoeImg> GetImageAsync(int? imageId = null, int? shoeId = null)
         {
             bool hasComment = false;
             ShoeImage image;
 
-            if (imageId is 0)
+            if (imageId is null)
                 image = await FindShoeImage(0, shoeId);
             else
                 image = await FindShoeImage(imageId);
@@ -98,7 +98,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             return _context.ShoeImages.AnyAsync(i => i.ImgGroupId == imageId);
         }
 
-        async Task<ShoeImage> FindShoeImage(int imageId = 0, int shoeId = 0)
+        async Task<ShoeImage> FindShoeImage(int? imageId = null, int? shoeId = null)
         {
             if(imageId != 0)
                 return await _context.ShoeImages

@@ -39,7 +39,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // GET: api/ShoeImages/5
         [HttpGet("single")]
-        public async Task<ActionResult> GetShoeImage(int imageGroupId = 0, int shoeId = 0)
+        public async Task<ActionResult> GetShoeImage(int? imageGroupId = null, int? shoeId = null)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
             try
             {
-                await _service.UpdateImageAsync(id, await ApiMapper.MapImage(image, _shoeService));
+                await _service.UpdateImageAsync(id, await ApiMapper.MapImage(image, _shoeService, id));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -124,7 +124,7 @@ namespace ShoelessJoeWebApi.App.Controllers
             return noImagesFound;
         }
 
-        static string NoImageWithId(int id)
+        static string NoImageWithId(int? id)
         {
             return $"No Image can found with an Id of {id}";
         }
