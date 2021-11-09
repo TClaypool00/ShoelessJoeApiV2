@@ -116,7 +116,9 @@ namespace ShoelessJoeWebApi.App.Controllers
                 if (await _service.CommentExistAsync(comment.BuyerId, comment.UserId))
                     return BadRequest("You already have a comment");
 
-                await _service.AddCommentAsync(await ApiMapper.MapComment(comment, UserService, ShoeService));
+                var coreComment = await _service.AddCommentAsync(await ApiMapper.MapComment(comment, UserService, ShoeService));
+
+                return Ok(ApiMapper.MapComment(coreComment));
             }
             catch(NullReferenceException)
             {
@@ -127,7 +129,6 @@ namespace ShoelessJoeWebApi.App.Controllers
 
                 return NotFound(UsersController.NoUser(comment.UserId));
             }
-            return Ok("Comment has been added!");
         }
 
         // DELETE: api/Comments/5

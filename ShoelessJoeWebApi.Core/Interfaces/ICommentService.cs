@@ -11,9 +11,9 @@ namespace ShoelessJoeWebApi.Core.Interfaces
 
         Task<CoreComment> GetCommentAsync(int buyerId, int sellerId, bool forReply = false);
 
-        Task<bool> CommentExistAsync(int buyerId, int sellerId);
+        Task<CoreComment> AddCommentAsync(CoreComment comment);
 
-        Task AddCommentAsync(CoreComment comment);
+        Task<bool> CommentExistAsync(int buyerId, int sellerId);
 
         Task UpdateCommentAsync(int buyerId, int sellerId, CoreComment comment);
 

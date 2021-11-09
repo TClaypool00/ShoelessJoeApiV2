@@ -18,10 +18,12 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             _context = context;
         }
 
-        public async Task AddCommentAsync(CoreComment comment)
+        public async Task<CoreComment> AddCommentAsync(CoreComment comment)
         {
             await _context.Comments.AddAsync(Mapper.MapComment(comment));
             await SaveAsync();
+
+            return comment;
         }
 
         public Task<bool> CommentExistAsync(int buyerId, int sellerId)
