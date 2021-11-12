@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
         //[ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<ActionResult> PostModelAsync([FromBody] ApiModel model)
+        public async Task<ActionResult> PostModelAsync([FromBody] PostModel model)
         {
             try
             {
@@ -89,7 +90,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutModelAsync(int id, [FromBody] ApiModel model)
+        public async Task<ActionResult> PutModelAsync(int id, [FromBody] PostModel model)
         {
             try
             {

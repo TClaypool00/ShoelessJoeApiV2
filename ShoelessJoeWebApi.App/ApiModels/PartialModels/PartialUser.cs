@@ -1,8 +1,7 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels
+﻿namespace ShoelessJoeWebApi.App.ApiModels.PartialModels
 {
-    public class PartialUser
+    public class PartialUser : UserIdModel
     {
-        public int UserId { get; set; }
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
     }

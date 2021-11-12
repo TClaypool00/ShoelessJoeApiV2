@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -63,7 +64,7 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostPostAsync(ApiPost post)
+        public async Task<ActionResult> PostPostAsync(PostPost post)
         {
             try
             {
@@ -83,7 +84,7 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutPostAsync(int id, ApiPost post)
+        public async Task<ActionResult> PutPostAsync(int id, PostPost post)
         {
             try
             {

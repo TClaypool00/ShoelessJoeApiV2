@@ -1,7 +1,8 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels
+﻿using ShoelessJoeWebApi.App.ApiModels.PostModels;
+
+namespace ShoelessJoeWebApi.App.ApiModels
 {
-    public class ApiPost : PartialPost
+    public class ApiPost : PostPost
     {
-        public int PostId { get; set; }
     }
 }

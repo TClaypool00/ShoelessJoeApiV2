@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -61,9 +61,9 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostFriendAsync(ApiFriend friend)
+        public async Task<ActionResult> PostFriendAsync(PostFriend friend)
         {
-            var tuple = await AllFieldsOK(friend.RecieverId, friend.SenderId, _userService, _service);
+            var tuple = await AllFieldsOK(friend.RecieverId, friend.UserId, _userService, _service);
             if (!tuple.Item1)
                 return BadRequest(tuple.Item2);
 
@@ -80,9 +80,9 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         [HttpPut("{id}&{id2}")]
-        public async Task<ActionResult> PutUserAsync(int id, int id2, [FromBody] ApiFriend friend)
+        public async Task<ActionResult> PutUserAsync(int id, int id2, [FromBody] PostFriend friend)
         {
-            var tuple = await AllFieldsOK(friend.RecieverId, friend.SenderId, _userService, _service);
+            var tuple = await AllFieldsOK(friend.RecieverId, friend.UserId, _userService, _service);
             if (!tuple.Item1)
                 return BadRequest(tuple.Item2);
 

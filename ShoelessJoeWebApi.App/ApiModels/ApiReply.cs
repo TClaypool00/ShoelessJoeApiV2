@@ -1,14 +1,11 @@
-﻿using System;
+﻿using ShoelessJoeWebApi.App.ApiModels.Interfaces;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 
 namespace ShoelessJoeWebApi.App.ApiModels
 {
-    public class ApiReply : PartialUser
+    public class ApiReply : PostReply, IUserNames
     {
-        public int ReplyId { get; set; }
-        public string ReplyBody { get; set; }
-        public DateTime DatePosted { get; set; }
-
-        public int BuyerId { get; set; }
-        public int SellerId { get; set; }
+        public string UserFirstName { get; set; }
+        public string UserLastName { get; set; }
     }
 }

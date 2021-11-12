@@ -1,4 +1,6 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels
+﻿using ShoelessJoeWebApi.App.ApiModels.PartialModels;
+
+namespace ShoelessJoeWebApi.App.ApiModels
 {
     public class ApiUser : PartialUser
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -65,7 +66,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // PUT: api/Replies/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutReply(int id, ApiReply reply)
+        public async Task<IActionResult> PutReply(int id, PostReply reply)
         {
             if (id <= 0)
             {
@@ -99,7 +100,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // POST: api/Replies
         [HttpPost]
-        public async Task<ActionResult> PostReply(ApiReply reply)
+        public async Task<ActionResult> PostReply(PostReply reply)
         {
             if (reply.UserId != reply.BuyerId && reply.UserId != reply.SellerId)
                 return BadRequest("You do not have authorization to add a reply.");

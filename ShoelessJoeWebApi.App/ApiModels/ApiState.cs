@@ -1,8 +1,9 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels
+﻿using ShoelessJoeWebApi.App.ApiModels.PartialModels;
+
+namespace ShoelessJoeWebApi.App.ApiModels
 {
-    public class ApiState
+    public class ApiState : PartialState
     {
-        public int StateId { get; set; }
         public string StateName { get; set; }
         public string StateAbr { get; set; }
     }

@@ -1,4 +1,6 @@
 ﻿using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PartialModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
@@ -29,7 +31,7 @@ namespace ShoelessJoeWebApi.App
             };
         }
 
-        public async static Task<CoreAddress> MapAddress(ApiAddress address, IStateService stateService, int id = 0)
+        public async static Task<CoreAddress> MapAddress(PostAddress address, IStateService stateService, int id = 0)
         {
             if (address.AddressId is not 0)
                 address.AddressId = id;
@@ -70,25 +72,15 @@ namespace ShoelessJoeWebApi.App
                 BuyerLastName = comment.Buyer.LastName,
 
                 UserId = comment.Seller.UserId,
-                UserFirstName = comment.Seller.FirstName,
-                UserLastName = comment.Seller.LastName,
 
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted,
                 
-                ShoeId = comment.Shoe.ShoeId,
-                BothShoes = comment.Shoe.BothShoes,
-                LeftSize = comment.Shoe.LeftSize,
-                RightSize = comment.Shoe.RightSize,
-                ModelId = comment.Shoe.Model.ModelId,
-                ModelName = comment.Shoe.Model.ModelName,
-                ManufacterId = comment.Shoe.Model.Manufacter.ManufacterId,
-                ManufacterName = comment.Shoe.Model.Manufacter.Name,
-                Replies = comment.Replies.Select(MapReply).ToList()
+                ShoeId = comment.Shoe.ShoeId
             };
         }
 
-        public async static Task<CoreComment> MapComment(ApiComment comment, IUserService userService, IShoeService shoeService, int buyerId = 0, int sellerId = 0)
+        public async static Task<CoreComment> MapComment(PostComment comment, IUserService userService, IShoeService shoeService, int buyerId = 0, int sellerId = 0)
         {
             if(buyerId != 0 && sellerId != 0)
             {
@@ -109,6 +101,22 @@ namespace ShoelessJoeWebApi.App
             };
         }
 
+        public static ApiComment MapComment(CoreComment comment, ApiShoe shoe)
+        {
+            return new ApiComment
+            {
+                BuyerId = comment.Buyer.UserId,
+                BuyerFirstName = comment.Buyer.FirstName,
+                BuyerLastName = comment.Buyer.LastName,
+
+                UserId = shoe.UserId,
+                ShoeId = shoe.ShoeId,
+                CommentBody = comment.CommentBody,
+                DatePosted = comment.DatePosted
+            };
+        }
+
+
         /* -------------------------------
          * |                             |
          * |            Friend           |
@@ -122,25 +130,25 @@ namespace ShoelessJoeWebApi.App
                 RecieverId = friend.Reciever.UserId,
                 RecieverFirstName = friend.Reciever.FirstName,
                 RecieverLastName = friend.Reciever.LastName,
-                SenderId = friend.Sender.UserId,
+                UserId = friend.Sender.UserId,
                 SenderFirstName = friend.Sender.FirstName,
                 SenderLastName = friend.Sender.LastName,
                 DateAccepted = friend.DateAccepted
             };
         }
 
-        public static async Task<CoreFriend> MapFriend(ApiFriend friend, IUserService userService, int recieverId = 0, int senderId = 0)
+        public static async Task<CoreFriend> MapFriend(PostFriend friend, IUserService userService, int recieverId = 0, int senderId = 0)
         {
             if(recieverId != 0 && senderId != 0)
             {
                 friend.RecieverId = recieverId;
-                friend.SenderId = senderId;
+                friend.UserId = senderId;
             }
 
             return new CoreFriend
             {
                 Reciever = await userService.GetUserAsync(friend.RecieverId),
-                Sender = await userService.GetUserAsync(friend.SenderId),
+                Sender = await userService.GetUserAsync(friend.UserId),
                 DateAccepted = friend.DateAccepted
             };
         }
@@ -233,7 +241,7 @@ namespace ShoelessJoeWebApi.App
             };
         }
 
-        public async static Task<CoreModel> MapModel(ApiModel model, IManufacterService manufacterService, int id = 0)
+        public async static Task<CoreModel> MapModel(PostModel model, IManufacterService manufacterService, int id = 0)
         {
             if (id is not 0)
                 model.ModelId = id;
@@ -266,7 +274,7 @@ namespace ShoelessJoeWebApi.App
             };
         }
 
-        public async static Task<CorePost> MapPost(ApiPost post, IUserService userService, int id = 0)
+        public async static Task<CorePost> MapPost(PostPost post, IUserService userService, int id = 0)
         {
             if (id is not 0)
                 post.PostId = id;
@@ -316,7 +324,7 @@ namespace ShoelessJoeWebApi.App
             return apiReply;
         }
 
-        public async static Task<CoreReply> MapReply(ApiReply reply, ICommentService commentService, IUserService userService, int id = 0)
+        public async static Task<CoreReply> MapReply(PostReply reply, ICommentService commentService, IUserService userService, int id = 0)
         {
             if (id != 0)
                 reply.ReplyId = id;
@@ -408,25 +416,55 @@ namespace ShoelessJoeWebApi.App
          * |                             |
          * -------------------------------
          */
-        public static ApiShoe MapShoe(CoreShoe shoe)
+        public static PartialShoe MapShoe(CoreShoe shoe)
         {
-            return new ApiShoe
+            return new PartialShoe
             {
                 ShoeId = shoe.ShoeId,
-                ManufacterId = shoe.Model.Manufacter.ManufacterId,
-                ManufacterName = shoe.Model.Manufacter.Name,
-                ModelId = shoe.Model.ModelId,
-                ModelName = shoe.Model.ModelName,
                 BothShoes = shoe.BothShoes,
-                LeftSize = shoe.LeftSize,
-                RightSize = shoe.RightSize,
+                LeftShoeRight = shoe.ShoeImage.LeftShoeRight,
+                ManufacterName = shoe.Model.Manufacter.Name,
                 UserId = shoe.User.UserId,
                 UserFirstName = shoe.User.FirstName,
                 UserLastName = shoe.User.LastName
             };
         }
 
-        public async static Task<CoreShoe> MapShoe(ApiShoe shoe, IUserService service, IModelService modelService, int id = 0)
+        public static ApiShoe MapFullShoe(CoreShoe shoe)
+        {
+            var comment = shoe.Comments.FirstOrDefault(c => c.Buyer.UserId == shoe.User.UserId || c.Seller.UserId == shoe.User.UserId);
+
+            var apiShoe = new ApiShoe
+            {
+                ShoeId = shoe.ShoeId,
+                BothShoes = shoe.BothShoes,
+                LeftSize = shoe.LeftSize,
+                RightSize = shoe.RightSize,
+                LeftShoeRight = shoe.ShoeImage.LeftShoeRight,
+                LeftShoeLeft = shoe.ShoeImage.LeftShoeLeft,
+                RightShoeLeft = shoe.ShoeImage.RightShoeLeft,
+                RightShoeRight = shoe.ShoeImage.RightShoeRight,
+                ManufacterName = shoe.Model.Manufacter.Name,
+                ModelName = shoe.Model.ModelName,
+                UserId = shoe.User.UserId,
+                UserFirstName = shoe.User.FirstName,
+                UserLastName = shoe.User.LastName,
+            };
+
+            if (comment is null)
+            {
+                apiShoe.HasComment = false;
+            }
+            else
+            {
+                apiShoe.HasComment = true;
+                apiShoe.Comment = MapComment(comment, apiShoe);
+            }
+
+            return apiShoe;
+        }
+
+        public async static Task<CoreShoe> MapShoe(PostShoe shoe, IUserService service, IModelService modelService, int id = 0)
         {
             if (id != 0)
                 shoe.ShoeId = id;
@@ -452,72 +490,6 @@ namespace ShoelessJoeWebApi.App
                 RightSize = rightShoeSize,
                 Model = await modelService.GetModelAsync(modelId),
                 User = await service.GetUserAsync(userId)
-            };
-        }
-
-        /* -------------------------------
-         * |                             |
-         * |         Shoe Image          |
-         * |                             |
-         * -------------------------------
-         */
-        public static ApiShoeImg MapImage(CoreShoeImg image)
-        {
-            return new ApiShoeImg
-            {
-                ImgGroupId = image.ImgGroupId,
-                LeftShoeLeft = Utils.FormatFileName(image.LeftShoeLeft, image.Shoe.User.UserId, image.Shoe.ShoeId),
-                LeftShoeRight = Utils.FormatFileName(image.LeftShoeRight, image.Shoe.User.UserId, image.Shoe.ShoeId),
-
-                RightShoeLeft = Utils.FormatFileName(image.RightShoeLeft, image.Shoe.User.UserId, image.Shoe.ShoeId),
-                RightShoeRight = Utils.FormatFileName(image.RightShoeRight, image.Shoe.User.UserId, image.Shoe.ShoeId),
-                HasComment = image.HasComment,
-
-                ShoeId = image.Shoe.ShoeId,
-                ModelId = image.Shoe.Model.ModelId,
-                ModelName = image.Shoe.Model.ModelName,
-                ManufacterId = image.Shoe.Model.Manufacter.ManufacterId,
-                ManufacterName = image.Shoe.Model.Manufacter.Name,
-                BothShoes = image.Shoe.BothShoes,
-                LeftSize = image.Shoe.LeftSize,
-                RightSize = image.Shoe.RightSize,
-                UserId = image.Shoe.User.UserId,
-                UserFirstName = image.Shoe.User.FirstName,
-                UserLastName = image.Shoe.User.LastName
-            };
-        }
-
-        public static CoreShoeImg MapImage(ApiShoeImg image, CoreShoe shoe)
-        {
-            return new CoreShoeImg
-            {
-                ImgGroupId = image.ImgGroupId,
-
-                LeftShoeLeft = image.LeftShoeLeft,
-                LeftShoeRight = image.LeftShoeRight,
-
-                RightShoeLeft = image.RightShoeLeft,
-                RightShoeRight = image.RightShoeRight,
-                HasComment = image.HasComment,
-
-                Shoe = shoe
-            };
-        }
-
-        public async static Task<CoreShoeImg> MapImage(ApiShoeImg image, IShoeService service, int id)
-        {
-            return new CoreShoeImg
-            {
-                ImgGroupId = image.ImgGroupId,
-
-                LeftShoeLeft = image.LeftShoeLeft,
-                LeftShoeRight = image.LeftShoeRight,
-
-                RightShoeLeft = image.RightShoeLeft,
-                RightShoeRight = image.RightShoeRight,
-                HasComment = image.HasComment,
-
-                Shoe = await service.GetShoeAsync(id)
             };
         }
 

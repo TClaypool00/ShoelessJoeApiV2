@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -67,7 +68,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // PUT: api/Comments/5
         [HttpPut("{buyerId}&{sellerId}")]
-        public async Task<IActionResult> PutComment(int buyerId, int sellerId, ApiComment comment)
+        public async Task<IActionResult> PutComment(int buyerId, int sellerId, PostComment comment)
         {
             if (buyerId <= 0 || sellerId <= 0)
                 return BadRequest(IdsMustBeGreater());
@@ -106,7 +107,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // POST: api/Comments
         [HttpPost]
-        public async Task<ActionResult> PostComment(ApiComment comment)
+        public async Task<ActionResult> PostComment(PostComment comment)
         {
             try
             {

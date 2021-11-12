@@ -1,31 +1,20 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels
+﻿using ShoelessJoeWebApi.App.ApiModels.PostModels;
+
+namespace ShoelessJoeWebApi.App.ApiModels
 {
-    public class ApiAddress : ApiState
+    public class ApiAddress : PostAddress
     {
+        public string StateName { get; set; }
+        public string StateAbr { get; set; }
+
         public ApiAddress()
         {
 
         }
 
-        public ApiAddress(string street, string city, string zipCode, int stateId, string stateName, string stateAbr, int addressId = 0)
+        public ApiAddress(string street, string city, string zip): base(street, city, zip)
         {
-            Street = street;
-            City = city;
-            ZipCode = zipCode;
-            StateId = stateId;
-            StateName = stateName;
-            StateAbr = stateAbr;
 
-            if (addressId != 0)
-                AddressId = addressId;
         }
-
-        public int AddressId { get; set; }
-
-        public string Street { get; set; }
-
-        public string City { get; set; }
-
-        public string ZipCode { get; set; }
     }
 }
