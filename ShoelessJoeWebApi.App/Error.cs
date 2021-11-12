@@ -7,6 +7,11 @@ namespace ShoelessJoeWebApi.App
 {
     public class Error
     {
+        public static string Message
+        {
+            get { return "Something went wrong. The error has been sent to our developers. We apologize for inconvience."; }
+        }
+
         public enum ControllerNames
         {
             Users,
