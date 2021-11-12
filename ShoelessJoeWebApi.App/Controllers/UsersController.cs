@@ -107,7 +107,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
             try
             {
-                await Service.UpdateUserAsync(await ApiMapper.MapUser(user, Service, _schoolService, id), null, oldUser);
+                await Service.UpdateUserAsync(await ApiMapper.MapUser(user, Service, _schoolService, id), id, oldUser);
             }
             catch (DbUpdateConcurrencyException)
             {
