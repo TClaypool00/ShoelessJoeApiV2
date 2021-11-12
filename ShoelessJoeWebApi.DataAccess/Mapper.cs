@@ -327,7 +327,8 @@ namespace ShoelessJoeWebApi.DataAccess
                 LeftSize = shoe.LeftSize,
 
                 Model = MapModel(shoe.Model),
-                User = MapUser(shoe.User)
+                User = MapUser(shoe.User),
+                ShoeImage = MapImage(shoe.ShoeImage)
             };
         }
 
@@ -365,7 +366,7 @@ namespace ShoelessJoeWebApi.DataAccess
                 RightShoeLeft = image.RightShoeLeft,
                 RightShoeRight = image.RightShoeRight,
 
-                Shoe = MapShoe(image.Shoe)
+                //Shoe = MapShoe(image.Shoe)
             };
         }
 
