@@ -159,6 +159,16 @@ namespace ShoelessJoeWebApi.App
          * |                             |
          * -------------------------------
          */
+
+        public static PartialManufacter MapPartialManufacter(CoreManufacter manufacter)
+        {
+            return new PartialManufacter
+            {
+                ManufacterId = manufacter.ManufacterId,
+                Name = manufacter.Name
+            };
+        }
+
         public static ApiManufacter MapManufacter(CoreManufacter manufacter)
         {
             return new ApiManufacter
@@ -179,14 +189,20 @@ namespace ShoelessJoeWebApi.App
         public async static Task<CoreManufacter> MapManufacter(ApiManufacter manufacter, CoreAddress address = null, IAddressService addressService = null,  int id = 0)
         {
             if (id != 0)
+            {
                 manufacter.ManufacterId = id;
+            }
+            else
+            {
+                manufacter.IsApproved = false;
+            }
 
             var newManufacter = new CoreManufacter
             {
                 ManufacterId = manufacter.ManufacterId,
                 Name = manufacter.Name,
                 ZipCode = manufacter.ZipCode,
-                IsApproved = false
+                IsApproved = manufacter.IsApproved
             };
 
             if (address is null)
@@ -230,6 +246,15 @@ namespace ShoelessJoeWebApi.App
          * |                             |
          * -------------------------------
          */
+        public static PartialModel MapPartialModel(CoreModel model)
+        {
+            return new PartialModel
+            {
+                ModelId = model.ModelId,
+                ModelName = model.ModelName
+            };
+        }
+
         public static ApiModel MapModel(CoreModel model)
         {
             return new ApiModel
@@ -464,7 +489,7 @@ namespace ShoelessJoeWebApi.App
             return apiShoe;
         }
 
-        public async static Task<CoreShoe> MapShoe(PostShoe shoe, IUserService service, IModelService modelService, int id = 0)
+        public async static Task<CoreShoe> MapShoe(PartialPostShoe shoe, IUserService service, IModelService modelService, int id = 0)
         {
             if (id != 0)
                 shoe.ShoeId = id;
@@ -490,6 +515,26 @@ namespace ShoelessJoeWebApi.App
                 RightSize = rightShoeSize,
                 Model = await modelService.GetModelAsync(modelId),
                 User = await service.GetUserAsync(userId)
+            };
+        }
+
+        /* -------------------------------
+         * |                             |
+         * |         Shoe Image          |
+         * |                             |
+         * -------------------------------
+         */
+
+        public static CoreShoeImg MapImage(ApiShoeImg image, CoreShoe shoe, bool hasComment)
+        {
+            return new CoreShoeImg
+            {
+                RightShoeLeft = image.RightShoeLeft,
+                RightShoeRight = image.RightShoeRight,
+                LeftShoeLeft = image.LeftShoeLeft,
+                LeftShoeRight = image.LeftShoeRight,
+                HasComment = hasComment,
+                Shoe = shoe
             };
         }
 
