@@ -1,9 +1,9 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels.PostModels
+﻿using ShoelessJoeWebApi.App.ApiModels.PartialModels;
+
+namespace ShoelessJoeWebApi.App.ApiModels.PostModels
 {
-    public class PostManufacter
+    public class PostManufacter : PartialManufacter
     {
-        public int ManufacterId { get; set; }
-        public string Name { get; set; }
         public bool IsApproved { get; set; } = false;
 
         public int AddressId { get; set; }

@@ -97,13 +97,14 @@ namespace ShoelessJoeWebApi.DataAccess.Services
         public async Task<CoreManufacter> UpdateManufacterAsync(int manufacterId, CoreManufacter manufacter)
         {
             var currentManufacter = await FindManufacterAsync(manufacterId);
-            var newManufacter = Mapper.MapManufacter(manufacter);
+            var newManufacter = Mapper.MapManufacter(manufacter, manufacterId);
 
             _context.Entry(currentManufacter).CurrentValues.SetValues(newManufacter);
 
             await SaveAsync();
 
             newManufacter.ManufacterId = currentManufacter.ManufacterId;
+            newManufacter.Address = currentManufacter.Address;
 
             return Mapper.MapManufacter(newManufacter);
         }
