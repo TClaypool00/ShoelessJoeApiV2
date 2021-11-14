@@ -1,13 +1,13 @@
-﻿using ShoelessJoeWebApi.App.ApiModels.PartialModels;
+﻿using Microsoft.AspNetCore.Http;
+using ShoelessJoeWebApi.App.ApiModels.PartialModels;
 
 namespace ShoelessJoeWebApi.App.ApiModels.PostModels
 {
-    public class PostShoe : UserIdModel
+    public class PostShoe : PartialPostShoe
     {
-        public int ShoeId { get; set; }
-        public int ModelId { get; set; }
-        public bool? BothShoes { get; set; }
-        public double? RightSize { get; set; }
-        public double? LeftSize { get; set; }
+        public IFormFile LeftShoeSide { get; set; }
+        public IFormFile LeftShoeUp { get; set; }
+        public IFormFile RightShoeSide { get; set; }
+        public IFormFile RightShoeUp { get; set; }
     }
 }

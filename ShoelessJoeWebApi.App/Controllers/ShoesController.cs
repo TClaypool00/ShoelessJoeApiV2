@@ -6,6 +6,7 @@ using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -86,7 +87,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // PUT: api/Shoes/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutShoe(int id, PostShoe shoe)
+        public async Task<IActionResult> PutShoe(int id, PartialPostShoe shoe)
         {
             try
             {
@@ -108,46 +109,55 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         // POST: api/Shoes
-        //[HttpPost]
-        //public async Task<ActionResult> PostShoe([FromForm] ApiPostShoe shoe)
-        //{
-        //    if (shoe.RightShoeBack.Name is null && shoe.LeftShoeFront.Name is null && shoe.LeftShoeFront.Name is null && shoe.LeftShoeLeft.Name is null)
-        //        return BadRequest("You need to have at least one file.");
+        [HttpPost]
+        public async Task<ActionResult> PostShoe([FromForm] PostShoe shoe)
+        {
+            if (shoe.RightShoeSide.Name is null && shoe.LeftShoeSide.Name is null && shoe.LeftShoeUp.Name is null && shoe.RightShoeUp.Name is null)
+                return BadRequest("You need to have at least one file.");
 
-        //    try
-        //    {
-        //        var coreShoe = await _service.AddShoeAsync(await ApiMapper.MapShoe(shoe.ShoeId, shoe.BothShoes, shoe.LeftSize, shoe.RightSize, shoe.ModelId, shoe.UserId, UserService, _modelService));
+            if (shoe.RightSize != null && shoe.LeftSize != null)
+            {
+                shoe.BothShoes = true;
+            }
+            else
+            {
+                shoe.BothShoes = false;
+            }
 
-        //        if (coreShoe is null)
-        //            return BadRequest("Something went wrong. Try again");
-        //        else
-        //        {
-        //            string userFolder = $@"{Utils.ServerFolder}user{shoe.UserId}";
-        //            string shoeFolder = $@"{userFolder}\shoe{coreShoe.ShoeId}";
+            try
+            {
+                var coreShoe = await _service.AddShoeAsync(await ApiMapper.MapShoe(shoe.ShoeId, shoe.BothShoes, shoe.LeftSize, shoe.RightSize, shoe.ModelId, shoe.UserId, UserService, _modelService));
 
-        //            if (!Directory.Exists(userFolder))
-        //                Directory.CreateDirectory(userFolder);
+                if (coreShoe is null)
+                    return BadRequest("Something went wrong. Try again");
+                else
+                {
+                    string userFolder = $@"{Utils.ServerFolder}user{shoe.UserId}";
+                    string shoeFolder = $@"{userFolder}\shoe{coreShoe.ShoeId}";
 
-        //            Directory.CreateDirectory(shoeFolder);
+                    if (!Directory.Exists(userFolder))
+                        Directory.CreateDirectory(userFolder);
 
-        //            var image = new ApiShoeImg
-        //            {
-        //                RightShoeRight = await Utils.FileUpload(shoe.LeftShoeFront, shoeFolder),
-        //                RightShoeLeft = await Utils.FileUpload(shoe.RightShoeRight, shoeFolder),
-        //                LeftShoeLeft = await Utils.FileUpload(shoe.RightShoeBack, shoeFolder),
-        //                LeftShoeRight = await Utils.FileUpload(shoe.LeftShoeFront, shoeFolder)
-        //            };
+                    Directory.CreateDirectory(shoeFolder);
 
-        //            await _imageService.AddImageAsync(ApiMapper.MapImage(image, coreShoe));
-        //        }
+                    var image = new ApiShoeImg
+                    {
+                        RightShoeRight = await Utils.FileUpload(shoe.RightShoeSide, shoeFolder),
+                        RightShoeLeft = await Utils.FileUpload(shoe.RightShoeUp, shoeFolder),
+                        LeftShoeLeft = await Utils.FileUpload(shoe.LeftShoeSide, shoeFolder),
+                        LeftShoeRight = await Utils.FileUpload(shoe.LeftShoeUp, shoeFolder)
+                    };
 
-        //        return Ok("Shoe has been created!");
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        return StatusCode(500, e);
-        //    }
-        // }
+                    await _imageService.AddImageAsync(ApiMapper.MapImage(image, coreShoe, false));
+                }
+
+                return Ok("Shoe has been created!");
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e);
+            }
+        }
 
         // DELETE: api/Shoes/5
         [HttpDelete("{id}")]
