@@ -1,10 +1,9 @@
-﻿namespace ShoelessJoeWebApi.App.ApiModels.PostModels
-{
-    public class PostModel
-    {
-        public int ModelId { get; set; }
-        public string ModelName { get; set; }
+﻿using ShoelessJoeWebApi.App.ApiModels.PartialModels;
 
+namespace ShoelessJoeWebApi.App.ApiModels.PostModels
+{
+    public class PostModel : PartialModel
+    {
         public int ManufacterId { get; set; }
     }
 }

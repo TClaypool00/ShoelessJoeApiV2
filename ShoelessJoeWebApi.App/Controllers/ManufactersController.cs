@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PartialModels;
 using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
@@ -54,6 +55,22 @@ namespace ShoelessJoeWebApi.App.Controllers
             {
                 return NotFound(ManufacterDoesNotExist(id));
             }
+        }
+
+        [HttpGet("dictionary")]
+        public async Task<ActionResult> GetManfacterDictionary()
+        {
+            var manufacterDict = new List<PartialManufacter>();
+
+            manufacterDict = (await _service.GetManufactersAsync(null, null, true)).Select(ApiMapper.MapPartialManufacter).ToList();
+
+            if (manufacterDict.Count == 0)
+            {
+                return NotFound("No manufacters");
+            }
+
+            return Ok(manufacterDict);
+            
         }
 
         //POST api/<ManufacterController>
@@ -125,6 +142,8 @@ namespace ShoelessJoeWebApi.App.Controllers
             try
             {
                 var resource = await ApiMapper.MapManufacter(manufacter, null, _addressService, id);
+
+                resource = await _service.UpdateManufacterAsync(id, resource);
 
                 return Ok(ApiMapper.MapManufacter(resource));
             }

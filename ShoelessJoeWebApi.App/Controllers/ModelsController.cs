@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PartialModels;
 using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
@@ -68,6 +69,23 @@ namespace ShoelessJoeWebApi.App.Controllers
                 return BadRequest(e);
             }
         }
+
+        [HttpGet("dictionary")]
+        public async Task<ActionResult> GetModelIdAndNames(int manufacterId)
+        {
+            var modelDict = new List<PartialModel>();
+
+            modelDict = (await _service.GetModelsAsync(null, manufacterId)).
+                Select(ApiMapper.MapPartialModel).ToList();
+
+            if (modelDict.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(modelDict);
+        }
+
         //[ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<ActionResult> PostModelAsync([FromBody] PostModel model)
