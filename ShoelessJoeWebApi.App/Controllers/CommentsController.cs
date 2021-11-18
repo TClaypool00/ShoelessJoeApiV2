@@ -32,7 +32,7 @@ namespace ShoelessJoeWebApi.App.Controllers
             var comments = new List<ApiComment>();
             try
             {
-                comments = (await _service.GetCommentsAsync(search, buyerId, sellerId, shoeId, date, andOr))
+                comments = (await _service.GetCommentsAsync(search, shoeId, date, andOr))
                     .Select(ApiMapper.MapComment)
                     .ToList();
 
@@ -49,39 +49,34 @@ namespace ShoelessJoeWebApi.App.Controllers
         }
 
         // GET: api/Comments/5
-        [HttpGet("{buyerId}&{sellerId}")]
-        public async Task<ActionResult> GetComment(int buyerId, int sellerId)
+        [HttpGet("{commentId}")]
+        public async Task<ActionResult> GetComment(int commentId)
         {
-            if (buyerId <= 0 || sellerId <= 0)
-                return BadRequest(IdsMustBeGreater());
             try
             {
-                var comment = await _service.GetCommentAsync(buyerId, sellerId);
+                var comment = await _service.GetCommentAsync(commentId);
 
                 return Ok(ApiMapper.MapComment(comment));
             }
             catch(NullReferenceException)
             {
-                return NotFound(NoCommentWithId(buyerId, sellerId));
+                return NotFound(NoCommentWithId(commentId));
             }
         }
 
         // PUT: api/Comments/5
-        [HttpPut("{buyerId}&{sellerId}")]
-        public async Task<IActionResult> PutComment(int buyerId, int sellerId, PostComment comment)
+        [HttpPut("{commentId}")]
+        public async Task<IActionResult> PutComment(int commentId, PostComment comment)
         {
-            if (buyerId <= 0 || sellerId <= 0)
-                return BadRequest(IdsMustBeGreater());
-
             try
             {
-                await _service.UpdateCommentAsync(buyerId, sellerId, await ApiMapper.MapComment(comment, UserService, ShoeService, buyerId, sellerId));
+                await _service.UpdateCommentAsync(commentId, await ApiMapper.MapComment(comment, UserService, ShoeService, commentId));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _service.CommentExistAsync(buyerId, sellerId))
+                if (!await _service.CommentExistAsync(commentId))
                 {
-                    return NotFound(NoCommentWithId(buyerId, sellerId));
+                    return NotFound(NoCommentWithId(comment.CommentId));
                 }
                 else
                 {
@@ -90,12 +85,12 @@ namespace ShoelessJoeWebApi.App.Controllers
             }
             catch (NullReferenceException)
             {
-                if (!await UserService.UserExistAsync(comment.BuyerId))
-                    return NotFound(UsersController.NoUser(comment.BuyerId));
+                if (!await UserService.UserExistAsync(comment.CommentId))
+                    return NotFound(UsersController.NoUser(comment.CommentId));
                 if (!await ShoeService.ShoeExistAsync(comment.ShoeId))
                     return NotFound(ShoesController.NoShoeWithId(comment.ShoeId));
 
-                return NotFound(UsersController.NoUser(comment.UserId));
+                return NotFound(UsersController.NoUser(comment.ShoeId));
             }
             catch (Exception e)
             {
@@ -111,10 +106,8 @@ namespace ShoelessJoeWebApi.App.Controllers
         {
             try
             {
-                if (comment.BuyerId == comment.UserId)
-                    return BadRequest("Buyer Id and Seller Id cannot be the same");
 
-                if (await _service.CommentExistAsync(comment.BuyerId, comment.UserId))
+                if (await _service.CommentExistAsync(comment.CommentId))
                     return BadRequest("You already have a comment");
 
                 var coreComment = await _service.AddCommentAsync(await ApiMapper.MapComment(comment, UserService, ShoeService));
@@ -123,36 +116,34 @@ namespace ShoelessJoeWebApi.App.Controllers
             }
             catch(NullReferenceException)
             {
-                if (!await UserService.UserExistAsync(comment.BuyerId))
-                    return NotFound(UsersController.NoUser(comment.BuyerId));
+                if (!await UserService.UserExistAsync(comment.CommentId))
+                    return NotFound(UsersController.NoUser(comment.CommentId));
                 if (!await ShoeService.ShoeExistAsync(comment.ShoeId))
                     return NotFound(ShoesController.NoShoeWithId(comment.ShoeId));
 
-                return NotFound(UsersController.NoUser(comment.UserId));
+                return NotFound(UsersController.NoUser(comment.ShoeId));
             }
         }
 
         // DELETE: api/Comments/5
-        [HttpDelete("{buyerId}&{sellerId}")]
-        public async Task<ActionResult> DeleteComment(int buyerId, int sellerId)
+        [HttpDelete("{commentId}")]
+        public async Task<ActionResult> DeleteComment(int commentId)
         {
-            if (buyerId <= 0 || sellerId <= 0)
-                return BadRequest(IdsMustBeGreater());
 
             try
             {
-                await _service.DeleteCommentAsync(buyerId, sellerId);
+                await _service.DeleteCommentAsync(commentId);
             }
             catch(NullReferenceException)
             {
-                return NotFound(NoCommentWithId(buyerId, sellerId));
+                return NotFound(NoCommentWithId(commentId));
             }
             return Ok("Comment has been deleted");
         }
 
-        public static string NoCommentWithId(int buyerId, int sellerId)
+        public static string NoCommentWithId(int commentId)
         {
-            return $"No comment with an id of {buyerId} or {sellerId}";
+            return $"No comment with an id of {commentId} ";
         }
 
         static string IdsMustBeGreater()
