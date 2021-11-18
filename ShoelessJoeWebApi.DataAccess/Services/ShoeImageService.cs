@@ -65,13 +65,6 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             else
                 image = await FindShoeImage(imageId);
 
-            foreach (var item in image.Shoe.Comments)
-            {
-                hasComment = await CommentExistAsync(item.BuyerId, item.SellerId);
-
-                if (hasComment)
-                    break;
-            }
             var newImage = Mapper.MapImage(image);
             newImage.HasComment = hasComment;
 
@@ -133,10 +126,6 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             i.RightShoeRight.ToLower().Contains(search.ToLower()) ||
             i.RightShoeLeft.ToLower().Contains(search.ToLower()
             )).Select(Mapper.MapImage).ToList();
-        }
-        Task<bool> CommentExistAsync(int buyerId, int sellerId)
-        {
-            return _context.Comments.AnyAsync(c => (c.Buyer.UserId == buyerId && c.Seller.UserId == sellerId) || (c.Seller.UserId == buyerId && c.Buyer.UserId == sellerId));
         }
 
         public async Task<List<int>> DeleteMultipleShoesAync(List<int> shoeIds)
