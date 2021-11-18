@@ -65,9 +65,9 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             return undeletedIds;
         }
 
-        public async Task<CoreShoe> GetShoeAsync(int shoeId)
+        public async Task<CoreShoe> GetShoeAsync(int shoeId, int? userId = null)
         {
-            return Mapper.MapShoe(await FindShoeAsync(shoeId, _context));
+            return Mapper.MapShoeWithComment(await FindShoeAsync(shoeId, _context), userId);
         }
 
         public async Task<List<CoreShoe>> GetShoesAsync(string search = null, int? userId = null, int? modelId = null)
@@ -125,6 +125,10 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .ThenInclude(s => s.State)
                 .Include(i => i.ShoeImage)
                 .Include(c => c.Comments)
+                .ThenInclude(b => b.Buyer)
+                .Include(c => c.Comments)
+                .ThenInclude(r => r.Replies)
+                .ThenInclude(ur => ur.User)
                 .FirstOrDefaultAsync(s => s.ShoeId == shoeId);
         }
 

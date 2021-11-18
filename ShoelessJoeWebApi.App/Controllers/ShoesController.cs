@@ -66,11 +66,11 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // GET: api/Shoes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetShoe(int id)
+        public async Task<ActionResult> GetShoe(int id, [FromQuery] int? userId = null)
         {
             try
             {
-                var shoe = await _service.GetShoeAsync(id);
+                var shoe = await _service.GetShoeAsync(id, userId);
 
                 return Ok(ApiMapper.MapFullShoe(shoe));
             }
