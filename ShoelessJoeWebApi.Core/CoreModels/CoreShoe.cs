@@ -18,5 +18,6 @@ namespace ShoelessJoeWebApi.Core.CoreModels
         public CoreShoeImg ShoeImage { get; set; }
 
         public List<CoreComment> Comments { get; set; } = new List<CoreComment>();
+        public CoreComment Comment { get; set; }
     }
 }

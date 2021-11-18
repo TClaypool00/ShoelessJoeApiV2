@@ -34,7 +34,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             await SaveAsync();
         }
 
-        public async Task<List<CoreReply>> GetRepliesAsync(string search = null, int? buyerId = null, int? sellerId = null, int? userId = null, DateTime? date = null, bool? sameComment = null)
+        public async Task<List<CoreReply>> GetRepliesAsync(string search = null, int? commentId = null, int? userId = null, DateTime? date = null, bool? sameComment = null)
         {
             var replies = await _context.Replies
                 .Include(u => u.User)
@@ -42,36 +42,20 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .ThenInclude(s => s.Shoe)
                 .ThenInclude(a => a.User)
                 .Include(f => f.Comment)
-                .ThenInclude(g => g.Buyer)
                 .ToListAsync();
 
             List<CoreReply> coreReplies;
 
             if (search is null)
-                coreReplies = replies.Select(Mapper.MapReply).ToList();
+                coreReplies = replies.Select(Mapper.MapReplyReturn).ToList();
             else
                 coreReplies = ConvertList(replies, search);
 
             if (date != default)
                 coreReplies = coreReplies.Where(d => d.DatePosted == date).ToList();
 
-            if (userId is not 0)
+            if (userId is not null)
                 coreReplies = coreReplies.Where(u => u.User.UserId == userId).ToList();
-
-            if(buyerId is not null && sellerId is not null)
-            {
-                if (sameComment is true)
-                    coreReplies = coreReplies.Where(c => c.Comment.Buyer.UserId == buyerId && c.Comment.Seller.UserId == sellerId).ToList();
-                else if (sameComment is false)
-                    coreReplies = coreReplies.Where(c => c.Comment.Buyer.UserId == buyerId || c.Comment.Seller.UserId == sellerId).ToList();
-            }
-            else
-            {
-                if(buyerId is not null)
-                    coreReplies = coreReplies.Where(c => c.Comment.Buyer.UserId == buyerId).ToList();
-                else if(sellerId is not null)
-                    coreReplies = coreReplies.Where(c => c.Comment.Seller.UserId == sellerId).ToList();
-            }
 
             return coreReplies;
 
@@ -106,7 +90,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .ThenInclude(s => s.Shoe)
                 .ThenInclude(a => a.User)
                 .Include(f => f.Comment)
-                .ThenInclude(g => g.Buyer)
+                //.ThenInclude(g => g.Buyer)
                 .FirstOrDefaultAsync(r => r.ReplyId == replyId);
         }
 
