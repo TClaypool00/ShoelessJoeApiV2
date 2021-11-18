@@ -1,11 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ShoelessJoeWebApi.App.ApiModels.PartialModels
+﻿namespace ShoelessJoeWebApi.App.ApiModels.PartialModels
 {
     public class UserIdModel
     {
         protected int _userId;
-        [Required]
         public int UserId
         {
             get { return _userId; }

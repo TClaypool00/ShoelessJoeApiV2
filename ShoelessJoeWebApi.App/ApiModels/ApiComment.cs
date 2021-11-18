@@ -1,4 +1,5 @@
 ﻿using ShoelessJoeWebApi.App.ApiModels.PostModels;
+using System.Collections.Generic;
 
 namespace ShoelessJoeWebApi.App.ApiModels
 {
@@ -6,5 +7,7 @@ namespace ShoelessJoeWebApi.App.ApiModels
     {
         public string BuyerFirstName { get; set; }
         public string BuyerLastName { get; set; }
+
+        public List<ApiReply> Replies { get; set; }
     }
 }
