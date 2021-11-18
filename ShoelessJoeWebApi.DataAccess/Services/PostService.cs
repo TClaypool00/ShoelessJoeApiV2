@@ -86,7 +86,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 corePosts = corePosts.Where(a => a.UserId == userId).ToList();
 
             if (date is not null)
-                corePosts = corePosts.Where(b => b.DatePosted == date).ToList();
+                corePosts = corePosts.Where(b => b.DatePosted == date.ToString()).ToList();
 
             return corePosts;
         }

@@ -7,6 +7,6 @@ namespace ShoelessJoeWebApi.App.ApiModels.PostModels
     {
         public int PostId { get; set; }
         public string CommentBody { get; set; }
-        public DateTime DatePosted { get; set; }
+        public string DatePosted { get; set; }
     }
 }
