@@ -67,37 +67,43 @@ namespace ShoelessJoeWebApi.App
         {
             return new ApiComment
             {
-                BuyerId = comment.Buyer.UserId,
+                CommentId = comment.Buyer.UserId,
                 BuyerFirstName = comment.Buyer.FirstName,
                 BuyerLastName = comment.Buyer.LastName,
 
-                UserId = comment.Seller.UserId,
-
                 CommentBody = comment.CommentBody,
-                DatePosted = comment.DatePosted,
+                DatePosted = comment.DatePosted.ToString(),
                 
                 ShoeId = comment.Shoe.ShoeId
             };
         }
 
-        public async static Task<CoreComment> MapComment(PostComment comment, IUserService userService, IShoeService shoeService, int buyerId = 0, int sellerId = 0)
+        public static ApiComment MapCommentWithReplies(CoreComment comment)
         {
-            if(buyerId != 0 && sellerId != 0)
+            return new ApiComment
             {
-                comment.BuyerId = buyerId;
-                comment.UserId = sellerId;
-            }
+                CommentId = comment.CommentId,
 
-            var shoe = await shoeService.GetShoeAsync(comment.ShoeId);
+                CommentBody = comment.CommentBody,
+                DatePosted = comment.DatePosted.ToString(),
+                Replies = comment.Replies.Select(MapPartialReply).ToList()
+            };
+        }
+
+        public async static Task<CoreComment> MapComment(PostComment comment, IUserService userService, IShoeService shoeService, int commentId = 0)
+        {
+            if (commentId != 0)
+            {
+                comment.CommentId = commentId;
+            }
 
             return new CoreComment
             {
-                Buyer = await userService.GetUserAsync(comment.BuyerId),
-                Seller = shoe.User,
-                Shoe = shoe,
+                Buyer = await userService.GetUserAsync(comment.UserId),
+                Shoe = await shoeService.GetShoeAsync(comment.ShoeId),
                 
                 CommentBody = comment.CommentBody,
-                DatePosted = comment.DatePosted
+                DatePosted = DateTime.Parse(comment.DatePosted)
             };
         }
 
@@ -105,14 +111,13 @@ namespace ShoelessJoeWebApi.App
         {
             return new ApiComment
             {
-                BuyerId = comment.Buyer.UserId,
+                CommentId = comment.Buyer.UserId,
                 BuyerFirstName = comment.Buyer.FirstName,
                 BuyerLastName = comment.Buyer.LastName,
 
-                UserId = shoe.UserId,
                 ShoeId = shoe.ShoeId,
                 CommentBody = comment.CommentBody,
-                DatePosted = comment.DatePosted
+                DatePosted = comment.DatePosted.ToString()
             };
         }
 
@@ -327,42 +332,64 @@ namespace ShoelessJoeWebApi.App
             {
                 ReplyId = reply.ReplyId,
                 ReplyBody = reply.ReplyBody,
-                DatePosted = reply.DatePosted,
+                DatePosted = reply.DatePosted.ToString(),
 
                 UserId = reply.User.UserId,
                 UserFirstName = reply.User.FirstName,
                 UserLastName = reply.User.LastName
             };
 
-            if (reply.Comment is null)
+            if (reply.Comment is not null)
             {
-                apiReply.BuyerId = reply.BuyerId;
-                apiReply.SellerId = reply.SellerId;
+                apiReply.CommentId = reply.Comment.CommentId;
             }
             else
             {
-                apiReply.BuyerId = reply.Comment.Buyer.UserId;
-                apiReply.SellerId = reply.Comment.Seller.UserId;
+                apiReply.CommentId = reply.CommentId;
             }
 
 
             return apiReply;
         }
 
+        public static ApiReply MapPartialReply(CoreReply reply)
+        {
+            return new ApiReply
+            {
+                ReplyId = reply.ReplyId,
+                ReplyBody = reply.ReplyBody,
+                DatePosted = reply.DatePosted.ToString(),
+                UserId = reply.User.UserId,
+                UserFirstName = reply.User.FirstName,
+                UserLastName = reply.User.LastName
+            };
+        }
+
+
         public async static Task<CoreReply> MapReply(PostReply reply, ICommentService commentService, IUserService userService, int id = 0)
         {
             if (id != 0)
                 reply.ReplyId = id;
 
-            return new CoreReply
+            var newReply = new CoreReply
             {
                 ReplyId = reply.ReplyId,
                 ReplyBody = reply.ReplyBody,
-                DatePosted = reply.DatePosted,
 
-                Comment = await commentService.GetCommentAsync(reply.BuyerId, reply.SellerId, true),
+                Comment = await commentService.GetCommentAsync(reply.CommentId, true),
                 User = await userService.GetUserAsync(reply.UserId)
             };
+
+            try
+            {
+                newReply.DatePosted = DateTime.Parse(reply.DatePosted);
+            }
+            catch
+            {
+                newReply.DatePosted = DateTime.Now;
+            }
+
+            return newReply;
         }
 
         /* -------------------------------
@@ -457,14 +484,12 @@ namespace ShoelessJoeWebApi.App
 
         public static ApiShoe MapFullShoe(CoreShoe shoe)
         {
-            var comment = shoe.Comments.FirstOrDefault(c => c.Buyer.UserId == shoe.User.UserId || c.Seller.UserId == shoe.User.UserId);
-
-            var apiShoe = new ApiShoe
+            return new ApiShoe
             {
                 ShoeId = shoe.ShoeId,
                 BothShoes = shoe.BothShoes,
-                LeftSize = shoe.LeftSize,
                 RightSize = shoe.RightSize,
+                LeftSize = shoe.LeftSize,
                 LeftShoeRight = shoe.ShoeImage.LeftShoeRight,
                 LeftShoeLeft = shoe.ShoeImage.LeftShoeLeft,
                 RightShoeLeft = shoe.ShoeImage.RightShoeLeft,
@@ -474,19 +499,8 @@ namespace ShoelessJoeWebApi.App
                 UserId = shoe.User.UserId,
                 UserFirstName = shoe.User.FirstName,
                 UserLastName = shoe.User.LastName,
+                Comment = MapCommentWithReplies(shoe.Comment)
             };
-
-            if (comment is null)
-            {
-                apiShoe.HasComment = false;
-            }
-            else
-            {
-                apiShoe.HasComment = true;
-                apiShoe.Comment = MapComment(comment, apiShoe);
-            }
-
-            return apiShoe;
         }
 
         public async static Task<CoreShoe> MapShoe(PartialPostShoe shoe, IUserService service, IModelService modelService, int id = 0)
@@ -568,9 +582,9 @@ namespace ShoelessJoeWebApi.App
          * |                             |
          * -------------------------------
          */
-        public static ApiUser MapUser(CoreUser user, bool includePassword = true, string token = null)
+        public static User MapUser(CoreUser user, bool includePassword = true, string token = null)
         {
-            var newUser = new ApiUser
+            var newUser = new User
             {
                 UserId = user.UserId,
                 UserFirstName = user.FirstName,
@@ -599,7 +613,7 @@ namespace ShoelessJoeWebApi.App
             return newUser;
         }
 
-        public async static Task<CoreUser> MapUser(ApiUser user, IUserService service, ISchoolService schoolService, int id = 0)
+        public async static Task<CoreUser> MapUser(PostUser user, IUserService service, ISchoolService schoolService, int id = 0)
         {
             if (id != 0)
                 user.UserId = id;

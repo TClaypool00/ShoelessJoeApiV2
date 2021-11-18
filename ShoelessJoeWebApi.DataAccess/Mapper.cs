@@ -52,7 +52,6 @@ namespace ShoelessJoeWebApi.DataAccess
             return new Comment
             {
                 BuyerId = comment.Buyer.UserId,
-                SellerId = comment.Seller.UserId,
                 CommentBody = comment.CommentBody,
                 DatePosted = DateTime.Now,
                 ShoeId = comment.Shoe.ShoeId
@@ -61,15 +60,12 @@ namespace ShoelessJoeWebApi.DataAccess
 
         public static CoreComment MapComment(Comment comment)
         {
-            var shoe = MapShoe(comment.Shoe);
-
             return new CoreComment
             {
+                CommentId = comment.CommentId,
                 Buyer = MapUser(comment.Buyer),
-                Seller = shoe.User,
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted,
-                Shoe = shoe,
                 Replies = comment.Replies.Select(MapReply).ToList()
             };
         }
@@ -78,8 +74,8 @@ namespace ShoelessJoeWebApi.DataAccess
         {
             return new CoreComment
             {
+                CommentId = comment.CommentId,
                 Buyer = MapUser(comment.Buyer),
-                Seller = MapUser(comment.Seller),
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted,
             };
@@ -195,7 +191,7 @@ namespace ShoelessJoeWebApi.DataAccess
             var newPost = new Post
             {
                 CommentBody = post.CommentBody,
-                DatePosted = post.DatePosted,
+                DatePosted = DateTime.Parse(post.DatePosted),
                 UserId = post.User.UserId
             };
 
@@ -210,7 +206,7 @@ namespace ShoelessJoeWebApi.DataAccess
             return new CorePost
             {
                 CommentBody = post.CommentBody,
-                DatePosted = post.DatePosted,
+                DatePosted = post.DatePosted.ToString(),
                 PostId = post.PostId,
 
                 User = MapUser(post.User)
@@ -229,8 +225,7 @@ namespace ShoelessJoeWebApi.DataAccess
             {
                 DatePosted = DateTime.Now,
                 ReplyBody = reply.ReplyBody,
-                CommentBuyerId = reply.Comment.Buyer.UserId,
-                CommentSellerId = reply.Comment.Seller.UserId,
+                CommentId = reply.Comment.CommentId,
 
                 UserId = reply.User.UserId
             };
@@ -248,8 +243,6 @@ namespace ShoelessJoeWebApi.DataAccess
                 ReplyId = reply.ReplyId,
                 DatePosted = reply.DatePosted,
                 ReplyBody = reply.ReplyBody,
-
-                Comment = MapCommentForReply(reply.Comment),
                 User = MapUser(reply.User)
             };
         }
@@ -262,8 +255,7 @@ namespace ShoelessJoeWebApi.DataAccess
                 DatePosted = reply.DatePosted,
                 ReplyBody = reply.ReplyBody,
 
-                BuyerId = reply.CommentBuyerId,
-                SellerId = reply.CommentSellerId,
+                CommentId = reply.Comment.CommentId,
                 User = MapUser(reply.User)
             };
         }
@@ -308,13 +300,29 @@ namespace ShoelessJoeWebApi.DataAccess
                 LeftSize = shoe.LeftSize,
                 UserId = shoe.User.UserId,
                 ModelId = shoe.Model.ModelId,
-                Comments = shoe.Comments.Select(MapComment).ToList()
+                
             };
 
             if (shoe.ShoeId != 0)
                 dataShoe.ShoeId = shoe.ShoeId;
 
             return dataShoe;
+        }
+
+        public static CoreShoe MapShoeWithComment(Shoe shoe, int? userId = null)
+        {
+            return new CoreShoe
+            {
+                ShoeId = shoe.ShoeId,
+                BothShoes = shoe.BothShoes,
+                RightSize = shoe.RightSize,
+                LeftSize = shoe.LeftSize,
+
+                Model = MapModel(shoe.Model),
+                User = MapUser(shoe.User),
+                ShoeImage = MapImage(shoe.ShoeImage),
+                Comment = MapComment(shoe.Comments.FirstOrDefault(c => c.BuyerId == userId))
+            };
         }
 
         public static CoreShoe MapShoe(Shoe shoe)
@@ -328,7 +336,7 @@ namespace ShoelessJoeWebApi.DataAccess
 
                 Model = MapModel(shoe.Model),
                 User = MapUser(shoe.User),
-                ShoeImage = MapImage(shoe.ShoeImage)
+                ShoeImage = MapImage(shoe.ShoeImage),
             };
         }
 
