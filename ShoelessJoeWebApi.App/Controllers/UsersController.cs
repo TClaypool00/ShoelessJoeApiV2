@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ShoelessJoeWebApi.App.ApiModels;
+using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.App.Helpers;
 using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
@@ -97,7 +98,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, ApiUser user)
+        public async Task<IActionResult> PutUser(int id, PostUser user)
         {
             var oldUser = await Service.GetUserAsync(id);
 
@@ -175,7 +176,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // POST: api/Users
         [HttpPost]
-        public async Task<ActionResult> PostUser(ApiUser user)
+        public async Task<ActionResult> PostUser(PostUser user)
         {
 
             if (user.IsAdmin)
