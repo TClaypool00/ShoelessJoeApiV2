@@ -25,11 +25,11 @@ namespace ShoelessJoeWebApi.DataAccess.DataModels
         public int? SchoolId { get; set; } = 0;
 
         public List<Shoe> Shoes { get; set; }
-        public List<Comment> SellerComments { get; set; }
         public List<Comment> BuyerComments { get; set; }
         public List<Reply> Replies { get; set; }
         public List<Friend> RecieverFriends { get; set; }
         public List<Friend> SenderFriends { get; set; }
         public List<Post> Posts { get; set; }
+        public List<CommentAndSeller> CommentAndSellers { get; set; }
     }
 }

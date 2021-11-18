@@ -10,9 +10,7 @@ namespace ShoelessJoeWebApi.Core.CoreModels
         public int UserId { get; set; }
         public CoreUser User { get; set; }
 
-        public int BuyerId { get; set; }
-        public int SellerId { get; set; }
-
+        public int CommentId { get; set; }
         public CoreComment Comment { get; set; }
 
         public DateTime DatePosted { get; set; }

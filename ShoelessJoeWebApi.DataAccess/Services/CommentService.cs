@@ -26,35 +26,33 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             return comment;
         }
 
-        public Task<bool> CommentExistAsync(int buyerId, int sellerId)
+        public Task<bool> CommentExistAsync(int commentId)
         {
-            return _context.Comments.AnyAsync(c => (c.Buyer.UserId == buyerId && c.Seller.UserId == sellerId) || (c.Seller.UserId == buyerId && c.Buyer.UserId == sellerId));
+            return _context.Comments.AnyAsync(c => c.CommentId == commentId);
         }
 
-        public async Task DeleteCommentAsync(int buyerId, int sellerId)
+        public async Task DeleteCommentAsync(int commentId)
         {
-            var comment = await FindCommentAsync(buyerId, sellerId);
+            var comment = await FindCommentAsync(commentId);
             _context.Replies.RemoveRange(comment.Replies);
             _context.Comments.Remove(comment);
-            
+
             await SaveAsync();
         }
 
-        public async Task<CoreComment> GetCommentAsync(int buyerId, int sellerId, bool forReply = false)
+        public async Task<CoreComment> GetCommentAsync(int commentId, bool forReply = false)
         {
             if (forReply)
-                return Mapper.MapCommentForReply(await FindCommentAsync(buyerId, sellerId));
+                return Mapper.MapCommentForReply(await FindCommentAsync(commentId));
 
-            return Mapper.MapComment(await FindCommentAsync(buyerId, sellerId));
+            return Mapper.MapComment(await FindCommentAsync(commentId));
         }
 
-        public async Task<List<CoreComment>> GetCommentsAsync(string search = null, int? buyerId = null, int? sellerId = null, int? shoeId = null, DateTime? date = null, bool? sellerAndBuyer = null)
+        public async Task<List<CoreComment>> GetCommentsAsync(string search = null, int? shoeId = null, DateTime? date = null, bool? sellerAndBuyer = null)
         {
             var comments = await _context.Comments
                 .Include(a => a.Buyer)
-                .Include(b => b.Seller)
-                .ThenInclude(d => d.Shoes)
-                .ThenInclude(u => u.User)
+                .Include(s => s.Shoe)
                 .Include(r => r.Replies)
                 .ThenInclude(g => g.User)
                 .ToListAsync();
@@ -72,21 +70,6 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             if (shoeId is not null)
                 coreComments = coreComments.Where(b => b.Shoe.ShoeId == shoeId).ToList();
 
-            if (buyerId is not null && sellerId is not null)
-            {
-                if (sellerAndBuyer is true)
-                    coreComments = coreComments.Where(c => c.Buyer.UserId == buyerId && c.Seller.UserId == sellerId).ToList();
-                else
-                    coreComments = coreComments.Where(c => c.Buyer.UserId == buyerId || c.Seller.UserId == sellerId).ToList();
-            }
-            else
-            {
-                if (buyerId is not null)
-                    coreComments = coreComments.Where(c => c.Buyer.UserId == buyerId).ToList();
-                if (sellerId is not null)
-                    coreComments = coreComments.Where(c => c.Seller.UserId == sellerId).ToList();
-            }
-
             return coreComments;
         }
 
@@ -95,22 +78,20 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateCommentAsync(int buyerId, int sellerId, CoreComment comment)
+        public async Task UpdateCommentAsync(int commentId, CoreComment comment)
         {
-            _context.Entry(await FindCommentAsync(buyerId, sellerId)).CurrentValues.SetValues(Mapper.MapComment(comment));
+            _context.Entry(await FindCommentAsync(commentId)).CurrentValues.SetValues(Mapper.MapComment(comment));
             await SaveAsync();
         }
 
-        private async Task<Comment> FindCommentAsync(int buyerId, int sellerId)
+        private async Task<Comment> FindCommentAsync(int commentId)
         {
             return await _context.Comments
                 .Include(a => a.Buyer)
-                .Include(b => b.Seller)
-                .ThenInclude(d => d.Shoes)
-                .ThenInclude(u => u.User)
+                .Include (s => s.Shoe)
                 .Include(r => r.Replies)
                 .ThenInclude(g => g.User)
-                .FirstOrDefaultAsync(c => (c.Buyer.UserId == buyerId && c.Seller.UserId == sellerId) || (c.Seller.UserId == buyerId && c.Buyer.UserId == sellerId));
+                .FirstOrDefaultAsync(c => c.CommentId == commentId);
         }
 
         static List<CoreComment> ConvertList(List<Comment> comments, string search = null)
@@ -121,8 +102,6 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 return comments.FindAll(c => c.CommentBody.ToLower().Contains(search.ToLower()) ||
                 c.Buyer.FirstName.ToLower().Contains(search.ToLower()) ||
                 c.Buyer.LastName.ToLower().Contains(search.ToLower()) ||
-                c.Seller.FirstName.ToLower().Contains(search.ToLower()) ||
-                c.Seller.LastName.ToLower().Contains(search.ToLower()) ||
                 c.DatePosted.ToString().Contains(search)
                 ).Select(Mapper.MapComment).ToList();
         }

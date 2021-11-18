@@ -27,13 +27,13 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // GET: api/Replies
         [HttpGet]
-        public async Task<ActionResult> GetReplies([FromQuery] string search = null, int? buyerId = null, int? sellerId = null, int? userId = null, DateTime? date = null, bool? sameComment = null)
+        public async Task<ActionResult> GetReplies([FromQuery] string search = null, int? commentId = null, int? userId = null, DateTime? date = null, bool? sameComment = null)
         {
             try
             {
                 var replies = new List<ApiReply>();
 
-                replies = (await _service.GetRepliesAsync(search, buyerId, sellerId, userId, date))
+                replies = (await _service.GetRepliesAsync(search, commentId, userId, date))
                     .Select(ApiMapper.MapReply).ToList();
 
                 if (replies.Count is 0)
@@ -90,8 +90,8 @@ namespace ShoelessJoeWebApi.App.Controllers
             }
             catch(NullReferenceException)
             {
-                if (!await _commentService.CommentExistAsync(reply.BuyerId, reply.SellerId))
-                    return NotFound(CommentsController.NoCommentWithId(reply.BuyerId, reply.SellerId));
+                if (!await _commentService.CommentExistAsync(reply.CommentId))
+                    return NotFound(CommentsController.NoCommentWithId(reply.CommentId));
                 return NotFound(UsersController.NoUser(reply.UserId));
             }
 
@@ -102,9 +102,6 @@ namespace ShoelessJoeWebApi.App.Controllers
         [HttpPost]
         public async Task<ActionResult> PostReply(PostReply reply)
         {
-            if (reply.UserId != reply.BuyerId && reply.UserId != reply.SellerId)
-                return BadRequest("You do not have authorization to add a reply.");
-
             try
             {
                 var newReply = await _service.AddReplyAsync(await ApiMapper.MapReply(reply, _commentService, _userService));
@@ -112,8 +109,8 @@ namespace ShoelessJoeWebApi.App.Controllers
             }
             catch (NullReferenceException)
             {
-                if (!await _commentService.CommentExistAsync(reply.BuyerId, reply.SellerId))
-                    return NotFound(CommentsController.NoCommentWithId(reply.BuyerId, reply.SellerId));
+                if (!await _commentService.CommentExistAsync(reply.CommentId))
+                    return NotFound(CommentsController.NoCommentWithId(reply.CommentId));
                 return NotFound(UsersController.NoUser(reply.UserId));
             }
             catch(Exception e)

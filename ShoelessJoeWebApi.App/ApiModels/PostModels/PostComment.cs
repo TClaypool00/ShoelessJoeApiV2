@@ -5,9 +5,9 @@ namespace ShoelessJoeWebApi.App.ApiModels.PostModels
 {
     public class PostComment : UserIdModel
     {
-        public int BuyerId { get; set; }
+        public int CommentId { get; set; }
         public string CommentBody { get; set; }
-        public DateTime DatePosted { get; set; }
+        public string DatePosted { get; set; }
         public int ShoeId { get; set; }
     }
 }

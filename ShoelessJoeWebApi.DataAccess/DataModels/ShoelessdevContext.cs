@@ -42,19 +42,6 @@ namespace ShoelessJoeWebApi.DataAccess.DataModels
                 .WithOne(b => b.Shoe)
                 .HasForeignKey<ShoeImage>(b => b.ShoeId);
 
-            //Comments
-            modelBuilder.Entity<Comment>().HasKey(c => new { c.BuyerId, c.SellerId });
-
-            modelBuilder.Entity<Comment>()
-                .HasOne(b => b.Buyer)
-                .WithMany(c => c.BuyerComments)
-                .HasForeignKey(b => b.BuyerId);
-
-            modelBuilder.Entity<Comment>()
-                .HasOne(b => b.Seller)
-                .WithMany(c => c.SellerComments)
-                .HasForeignKey(b => b.SellerId);
-
             //Friends
             modelBuilder.Entity<Friend>().HasKey(c => new { c.SenderId, c.RecieverId });
 

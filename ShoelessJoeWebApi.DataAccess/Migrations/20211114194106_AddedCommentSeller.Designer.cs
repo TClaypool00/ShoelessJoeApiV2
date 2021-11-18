@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoelessJoeWebApi.DataAccess.DataModels;
 
 namespace ShoelessJoeWebApi.DataAccess.Migrations
 {
     [DbContext(typeof(ShoelessdevContext))]
-    partial class ShoelessdevContextModelSnapshot : ModelSnapshot
+    [Migration("20211114194106_AddedCommentSeller")]
+    partial class AddedCommentSeller
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,6 +53,35 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Comment", b =>
+                {
+                    b.Property<int>("BuyerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SellerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CommentBody")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("DatePosted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ShoeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BuyerId", "SellerId");
+
+                    b.HasIndex("SellerId");
+
+                    b.HasIndex("ShoeId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.CommentAndSeller", b =>
                 {
                     b.Property<int>("CommentBuyerId")
@@ -58,7 +89,13 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("CommentBuyerId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CommentSellerId")
                         .HasColumnType("int");
 
                     b.Property<int>("SellerId")
@@ -66,9 +103,9 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
 
                     b.HasKey("CommentBuyerId");
 
-                    b.HasIndex("CommentId");
-
                     b.HasIndex("SellerId");
+
+                    b.HasIndex("CommentBuyerId1", "CommentSellerId");
 
                     b.ToTable("CommentAndSeller");
                 });
@@ -139,37 +176,6 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                     b.ToTable("Models");
                 });
 
-            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.NewComment", b =>
-                {
-                    b.Property<int>("CommentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("BuyerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CommentBody")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime>("DatePosted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ShoeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CommentId");
-
-                    b.HasIndex("BuyerId");
-
-                    b.HasIndex("ShoeId");
-
-                    b.ToTable("Comments");
-                });
-
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Post", b =>
                 {
                     b.Property<int>("PostId")
@@ -203,7 +209,10 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CommentId")
+                    b.Property<int>("CommentBuyerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CommentSellerId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DatePosted")
@@ -220,9 +229,9 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
 
                     b.HasKey("ReplyId");
 
-                    b.HasIndex("CommentId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("CommentBuyerId", "CommentSellerId");
 
                     b.ToTable("Replies");
                 });
@@ -392,17 +401,44 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                     b.Navigation("State");
                 });
 
-            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.CommentAndSeller", b =>
+            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Comment", b =>
                 {
-                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.NewComment", "Comment")
-                        .WithMany("CommentAndSellers")
-                        .HasForeignKey("CommentId")
+                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.User", "Buyer")
+                        .WithMany("BuyerComments")
+                        .HasForeignKey("BuyerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.User", "Seller")
+                        .WithMany("SellerComments")
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.Shoe", "Shoe")
+                        .WithMany("Comments")
+                        .HasForeignKey("ShoeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Buyer");
+
+                    b.Navigation("Seller");
+
+                    b.Navigation("Shoe");
+                });
+
+            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.CommentAndSeller", b =>
+                {
+                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.User", "Seller")
                         .WithMany("CommentAndSellers")
                         .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.Comment", "Comment")
+                        .WithMany("CommentAndSellers")
+                        .HasForeignKey("CommentBuyerId1", "CommentSellerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -452,25 +488,6 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                     b.Navigation("Manufacter");
                 });
 
-            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.NewComment", b =>
-                {
-                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.User", "Buyer")
-                        .WithMany("BuyerComments")
-                        .HasForeignKey("BuyerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.Shoe", "Shoe")
-                        .WithMany("Comments")
-                        .HasForeignKey("ShoeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Buyer");
-
-                    b.Navigation("Shoe");
-                });
-
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Post", b =>
                 {
                     b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.User", "User")
@@ -484,15 +501,15 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
 
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Reply", b =>
                 {
-                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.NewComment", "Comment")
-                        .WithMany("Replies")
-                        .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.User", "User")
                         .WithMany("Replies")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShoelessJoeWebApi.DataAccess.DataModels.Comment", "Comment")
+                        .WithMany("Replies")
+                        .HasForeignKey("CommentBuyerId", "CommentSellerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -558,6 +575,13 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                     b.Navigation("School");
                 });
 
+            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Comment", b =>
+                {
+                    b.Navigation("CommentAndSellers");
+
+                    b.Navigation("Replies");
+                });
+
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Manufacter", b =>
                 {
                     b.Navigation("Models");
@@ -566,13 +590,6 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.Model", b =>
                 {
                     b.Navigation("Shoes");
-                });
-
-            modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.NewComment", b =>
-                {
-                    b.Navigation("CommentAndSellers");
-
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("ShoelessJoeWebApi.DataAccess.DataModels.School", b =>
@@ -603,6 +620,8 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                     b.Navigation("RecieverFriends");
 
                     b.Navigation("Replies");
+
+                    b.Navigation("SellerComments");
 
                     b.Navigation("SenderFriends");
 
