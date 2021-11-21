@@ -1,10 +1,9 @@
-﻿using ShoelessJoeWebApi.App.ApiModels.Interfaces;
+﻿using ShoelessJoeWebApi.App.Helpers;
 
 namespace ShoelessJoeWebApi.App.ApiModels.PartialModels
 {
-    public class PartialShoe : UserIdModel, IUserNames
+    public class PartialShoe : UserIdModel
     {
-        private string _lastName;
         private string _leftShoeRight;
         private int _shoeId;
 
@@ -22,11 +21,7 @@ namespace ShoelessJoeWebApi.App.ApiModels.PartialModels
         public bool? BothShoes { get; set; }
 
         public string UserFirstName { get; set; }
-        public string UserLastName
-        {
-            get { return $"{_lastName[0]}."; }
-            set { _lastName = value; }
-        }
+        public string UserLastName { get; set; }
 
         protected string FormatUrl(string shoeUrl)
         {

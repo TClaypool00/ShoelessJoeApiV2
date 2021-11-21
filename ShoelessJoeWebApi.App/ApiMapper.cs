@@ -83,7 +83,8 @@ namespace ShoelessJoeWebApi.App
             return new ApiComment
             {
                 CommentId = comment.CommentId,
-
+                BuyerFirstName = comment.Buyer.FirstName,
+                BuyerLastName = comment.Buyer.LastName,
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted.ToString(),
                 Replies = comment.Replies.Select(MapPartialReply).ToList()
