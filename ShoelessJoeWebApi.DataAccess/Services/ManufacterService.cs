@@ -25,7 +25,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
 
             await SaveAsync();
 
-            return Mapper.MapManufacter(dbManufacter);
+            return Mapper.MapPartialManufacter(dbManufacter);
         }
 
         public async Task AddManufactersAsync(List<CoreManufacter> manufacters)
@@ -61,7 +61,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
 
         public async Task<CoreManufacter> GetManufacterAsync(int manufacterId)
         {
-            return Mapper.MapManufacter(await FindManufacterAsync(manufacterId));
+            return Mapper.MapPartialManufacter(await FindManufacterAsync(manufacterId));
         }
 
         public async Task<List<CoreManufacter>> GetManufactersAsync(string search = null, int? stateId = null, bool? approved = null)
@@ -74,7 +74,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             List<CoreManufacter> coreManufacters;
 
             if (search is null)
-                coreManufacters = manufacters.Select(Mapper.MapManufacter).ToList();
+                coreManufacters = manufacters.Select(Mapper.MapPartialManufacter).ToList();
             else
                 coreManufacters = SearchResults(manufacters, search);
 
@@ -106,7 +106,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             newManufacter.ManufacterId = currentManufacter.ManufacterId;
             newManufacter.Address = currentManufacter.Address;
 
-            return Mapper.MapManufacter(newManufacter);
+            return Mapper.MapPartialManufacter(newManufacter);
         }
 
         public async Task SaveAsync()
@@ -129,7 +129,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             m.Address.Street.ToLower().Contains(search.ToLower()) ||
             m.Address.ZipCode.ToLower().Contains(search.ToLower()) ||
             m.Address.State.StateName.ToLower().Contains(search.ToLower())
-            ).Select(Mapper.MapManufacter).ToList();
+            ).Select(Mapper.MapPartialManufacter).ToList();
         }
     }
 }

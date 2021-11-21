@@ -45,7 +45,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             if (forReply)
                 return Mapper.MapCommentForReply(await FindCommentAsync(commentId));
 
-            return Mapper.MapComment(await FindCommentAsync(commentId));
+            return Mapper.MapCommentWithReplies(await FindCommentAsync(commentId));
         }
 
         public async Task<List<CoreComment>> GetCommentsAsync(string search = null, int? shoeId = null, DateTime? date = null, bool? sellerAndBuyer = null)
@@ -57,12 +57,9 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .ThenInclude(g => g.User)
                 .ToListAsync();
 
-            List<CoreComment> coreComments;
+            List<CoreComment> coreComments = new List<CoreComment>();
 
-            if (search is null)
-                coreComments = ConvertList(comments);
-            else
-                coreComments = ConvertList(comments, search);
+            coreComments = ConvertList(comments, coreComments, search);
 
             if (date != null)
                 coreComments = coreComments.Where(a => a.DatePosted == date).ToList();
@@ -94,16 +91,26 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .FirstOrDefaultAsync(c => c.CommentId == commentId);
         }
 
-        static List<CoreComment> ConvertList(List<Comment> comments, string search = null)
+        static List<CoreComment> ConvertList(List<Comment> comments, List<CoreComment> coreComments, string search = null)
         {
-            if (search is null)
-                return comments.Select(Mapper.MapComment).ToList();
-            else
-                return comments.FindAll(c => c.CommentBody.ToLower().Contains(search.ToLower()) ||
+            if (search is not null)
+            {
+                comments = comments.FindAll(c => c.CommentBody.ToLower().Contains(search.ToLower()) ||
                 c.Buyer.FirstName.ToLower().Contains(search.ToLower()) ||
                 c.Buyer.LastName.ToLower().Contains(search.ToLower()) ||
                 c.DatePosted.ToString().Contains(search)
-                ).Select(Mapper.MapComment).ToList();
+                ).ToList();
+            }
+
+            if (comments.Count > 0)
+            {
+                foreach (var comment in comments)
+                {
+                    coreComments.Add(Mapper.MapCommentWithReplies(comment));
+                }
+            }
+
+            return coreComments;
         }
     }
 }

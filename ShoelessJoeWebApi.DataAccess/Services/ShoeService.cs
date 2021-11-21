@@ -121,8 +121,6 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .Include(u => u.User)
                 .Include(a => a.Model)
                 .ThenInclude(m => m.Manufacter)
-                .ThenInclude(b => b.Address)
-                .ThenInclude(s => s.State)
                 .Include(i => i.ShoeImage)
                 .Include(c => c.Comments)
                 .ThenInclude(b => b.Buyer)

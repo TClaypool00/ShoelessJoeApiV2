@@ -58,16 +58,36 @@ namespace ShoelessJoeWebApi.DataAccess
             };
         }
 
-        public static CoreComment MapComment(Comment comment)
+        public static CoreComment MapCommentWithReplies(Comment comment, CoreUser shoeOwner = null)
         {
-            return new CoreComment
+            var coreComment = new CoreComment
             {
                 CommentId = comment.CommentId,
-                Buyer = MapUser(comment.Buyer),
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted,
-                Replies = comment.Replies.Select(MapReply).ToList()
             };
+
+            if (shoeOwner is not null)
+            {
+                if (shoeOwner.UserId == comment.Buyer.UserId)
+                {
+                    coreComment.Buyer = shoeOwner;
+                }
+                else
+                {
+                    coreComment.Buyer = MapUser(comment.Buyer);
+                }
+            }
+
+            if (comment.Replies.Count > 0)
+            {
+                foreach (var reply in comment.Replies)
+                {
+                    coreComment.Replies.Add(MapReply(reply, shoeOwner, coreComment.Buyer));
+                }
+            }
+
+            return coreComment;
         }
 
         public static CoreComment MapCommentForReply(Comment comment)
@@ -139,14 +159,13 @@ namespace ShoelessJoeWebApi.DataAccess
             };
         }
 
-        public static CoreManufacter MapManufacter(Manufacter manufacter)
+        public static CoreManufacter MapPartialManufacter(Manufacter manufacter)
         {
             return new CoreManufacter
             {
                 ManufacterId = manufacter.ManufacterId,
                 Name = manufacter.Name,
                 IsApproved = manufacter.IsApproved,
-                Address = MapAddress(manufacter.Address)
             };
         }
 
@@ -176,7 +195,7 @@ namespace ShoelessJoeWebApi.DataAccess
             {
                 ModelId = model.ModelId,
                 ModelName = model.ModelName,
-                Manufacter = MapManufacter(model.Manufacter)
+                Manufacter = MapPartialManufacter(model.Manufacter)
             };
         }
 
@@ -236,15 +255,38 @@ namespace ShoelessJoeWebApi.DataAccess
             return newReply;
         }
 
-        public static CoreReply MapReply(Reply reply)
+        public static CoreReply MapReply(Reply reply, CoreUser shoeOwner = null, CoreUser commentBuyer = null)
         {
-            return new CoreReply
+            bool userCheck = false;
+
+            var coreReply = new CoreReply
             {
                 ReplyId = reply.ReplyId,
                 DatePosted = reply.DatePosted,
                 ReplyBody = reply.ReplyBody,
-                User = MapUser(reply.User)
             };
+
+            if (shoeOwner.UserId == reply.User.UserId)
+            {
+                coreReply.User = shoeOwner;
+                userCheck = true;
+            }
+
+            if (!userCheck)
+            {
+                if (commentBuyer.UserId == reply.User.UserId)
+                {
+                    coreReply.User = commentBuyer;
+                    userCheck = true;
+                }
+            }
+
+            if (!userCheck)
+            {
+                coreReply.User = MapUser(reply.User);
+            }
+
+            return coreReply;
         }
 
         public static CoreReply MapReplyReturn(Reply reply)
@@ -311,7 +353,9 @@ namespace ShoelessJoeWebApi.DataAccess
 
         public static CoreShoe MapShoeWithComment(Shoe shoe, int? userId = null)
         {
-            return new CoreShoe
+            var comment = shoe.Comments.FirstOrDefault(c => c.BuyerId == userId);
+
+            var coreShoe = new CoreShoe
             {
                 ShoeId = shoe.ShoeId,
                 BothShoes = shoe.BothShoes,
@@ -321,8 +365,14 @@ namespace ShoelessJoeWebApi.DataAccess
                 Model = MapModel(shoe.Model),
                 User = MapUser(shoe.User),
                 ShoeImage = MapImage(shoe.ShoeImage),
-                Comment = MapComment(shoe.Comments.FirstOrDefault(c => c.BuyerId == userId))
             };
+
+            if (comment is not null)
+            {
+                coreShoe.Comment = MapCommentWithReplies(comment, coreShoe.User);
+            }
+
+            return coreShoe;
         }
 
         public static CoreShoe MapShoe(Shoe shoe)
@@ -440,6 +490,20 @@ namespace ShoelessJoeWebApi.DataAccess
          */
         public static CoreUser MapUser(User user)
         {
+            return new CoreUser
+            {
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Password = user.Password,
+                IsAdmin = user.IsAdmin,
+                SchoolId = 0
+            };
+        }
+
+        public static CoreUser MapUserWithSchool(User user)
+        {
             var coreUser = new CoreUser
             {
                 UserId = user.UserId,
@@ -455,7 +519,7 @@ namespace ShoelessJoeWebApi.DataAccess
                 var school = MapSchool(user.School);
                 coreUser.SchoolId = school.SchoolId;
             }
-            catch(NullReferenceException)
+            catch (NullReferenceException)
             {
                 coreUser.SchoolId = 0;
             }

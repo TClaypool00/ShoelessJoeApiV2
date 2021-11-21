@@ -44,12 +44,12 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .Include(f => f.Comment)
                 .ToListAsync();
 
-            List<CoreReply> coreReplies;
+            List<CoreReply> coreReplies = new List<CoreReply>();
 
             if (search is null)
                 coreReplies = replies.Select(Mapper.MapReplyReturn).ToList();
-            else
-                coreReplies = ConvertList(replies, search);
+            //else
+            //    coreReplies = ConvertList(replies, search);
 
             if (date != default)
                 coreReplies = coreReplies.Where(d => d.DatePosted == date).ToList();
@@ -94,13 +94,13 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .FirstOrDefaultAsync(r => r.ReplyId == replyId);
         }
 
-        static List<CoreReply> ConvertList(List<Reply> replies, string search)
-        {
-            return replies.FindAll(r => r.ReplyBody.ToLower().Contains(search.ToLower()) ||
-            r.DatePosted.ToString().Contains(search) ||
-            r.User.FirstName.ToLower().Contains(search.ToLower()) ||
-            r.User.LastName.ToLower().Contains(search.ToLower())
-            ).Select(Mapper.MapReply).ToList();
-        }
+        //static List<CoreReply> ConvertList(List<Reply> replies, string search)
+        //{
+        //    return replies.FindAll(r => r.ReplyBody.ToLower().Contains(search.ToLower()) ||
+        //    r.DatePosted.ToString().Contains(search) ||
+        //    r.User.FirstName.ToLower().Contains(search.ToLower()) ||
+        //    r.User.LastName.ToLower().Contains(search.ToLower())
+        //    ).Select(Mapper.MapReply).ToList();
+        //}
     }
 }
