@@ -4,6 +4,7 @@ using ShoelessJoeWebApi.App.ApiModels.PostModels;
 using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -73,8 +74,6 @@ namespace ShoelessJoeWebApi.App
 
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted.ToString(),
-                
-                ShoeId = comment.Shoe.ShoeId
             };
         }
 
@@ -485,7 +484,7 @@ namespace ShoelessJoeWebApi.App
 
         public static ApiShoe MapFullShoe(CoreShoe shoe)
         {
-            return new ApiShoe
+            var apiShoe = new ApiShoe
             {
                 ShoeId = shoe.ShoeId,
                 BothShoes = shoe.BothShoes,
@@ -500,8 +499,19 @@ namespace ShoelessJoeWebApi.App
                 UserId = shoe.User.UserId,
                 UserFirstName = shoe.User.FirstName,
                 UserLastName = shoe.User.LastName,
-                Comment = MapCommentWithReplies(shoe.Comment)
             };
+
+            if (shoe.Comment is not null)
+            {
+                apiShoe.Comment = MapCommentWithReplies(shoe.Comment);
+            }
+            else if (shoe.Comments.Count > 0)
+            {
+                apiShoe.Comments = new List<ApiComment>();
+                apiShoe.Comments = shoe.Comments.Select(MapComment).ToList();
+            }
+
+            return apiShoe;
         }
 
         public async static Task<CoreShoe> MapShoe(PartialPostShoe shoe, IUserService service, IModelService modelService, int id = 0)

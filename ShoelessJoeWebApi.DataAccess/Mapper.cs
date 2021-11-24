@@ -90,6 +90,17 @@ namespace ShoelessJoeWebApi.DataAccess
             return coreComment;
         }
 
+        public static CoreComment MapPartialComment(Comment comment)
+        {
+            return new CoreComment
+            {
+                CommentId = comment.CommentId,
+                CommentBody = comment.CommentBody,
+                DatePosted = comment.DatePosted,
+                Buyer = MapUser(comment.Buyer)
+            };
+        }
+
         public static CoreComment MapCommentForReply(Comment comment)
         {
             return new CoreComment
@@ -355,22 +366,20 @@ namespace ShoelessJoeWebApi.DataAccess
         {
             var comment = shoe.Comments.FirstOrDefault(c => c.BuyerId == userId);
 
-            var coreShoe = new CoreShoe
-            {
-                ShoeId = shoe.ShoeId,
-                BothShoes = shoe.BothShoes,
-                RightSize = shoe.RightSize,
-                LeftSize = shoe.LeftSize,
-
-                Model = MapModel(shoe.Model),
-                User = MapUser(shoe.User),
-                ShoeImage = MapImage(shoe.ShoeImage),
-            };
+            var coreShoe = MapShoe(shoe);
 
             if (comment is not null)
             {
                 coreShoe.Comment = MapCommentWithReplies(comment, coreShoe.User);
             }
+
+            return coreShoe;
+        }
+
+        public static CoreShoe MapShoeAndComments(Shoe shoe)
+        {
+            var coreShoe = MapShoe(shoe);
+            coreShoe.Comments = shoe.Comments.Select(MapPartialComment).ToList();
 
             return coreShoe;
         }

@@ -67,7 +67,23 @@ namespace ShoelessJoeWebApi.DataAccess.Services
 
         public async Task<CoreShoe> GetShoeAsync(int shoeId, int? userId = null)
         {
-            return Mapper.MapShoeWithComment(await FindShoeAsync(shoeId, _context), userId);
+            var shoe = await FindShoeAsync(shoeId, _context);
+
+            if (userId is null)
+            {
+                return Mapper.MapShoe(shoe);
+            }
+            else
+            {
+                if ((int)userId == shoe.UserId)
+                {
+                    return Mapper.MapShoeAndComments(shoe);
+                }
+                else
+                {
+                    return Mapper.MapShoeWithComment(shoe, userId);
+                }
+            }
         }
 
         public async Task<List<CoreShoe>> GetShoesAsync(string search = null, int? userId = null, int? modelId = null)

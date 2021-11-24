@@ -1,4 +1,5 @@
 ﻿using ShoelessJoeWebApi.App.ApiModels.PartialModels;
+using System.Collections.Generic;
 
 namespace ShoelessJoeWebApi.App.ApiModels
 {
@@ -31,5 +32,6 @@ namespace ShoelessJoeWebApi.App.ApiModels
         public bool HasComment { get; set; }
 
         public ApiComment Comment { get; set; } = null;
+        public List<ApiComment> Comments { get; set; }
     }
 }
