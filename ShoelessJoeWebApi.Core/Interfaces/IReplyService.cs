@@ -7,7 +7,7 @@ namespace ShoelessJoeWebApi.Core.Interfaces
 {
     public interface IReplyService
     {
-        Task<List<CoreReply>> GetRepliesAsync(string search = null, int? commentId = null, int? userId = null, DateTime? date = null, bool? sameComment = null);
+        Task<List<CoreReply>> GetRepliesAsync(string search = null, int? commentId = null, int? buyerId = null, int? onwerId = null, DateTime? date = null, bool? partial = null, CoreUser shoeOwner = null, CoreUser buyer = null);
 
         Task<CoreReply> GetReplyAsync(int replyId);
 

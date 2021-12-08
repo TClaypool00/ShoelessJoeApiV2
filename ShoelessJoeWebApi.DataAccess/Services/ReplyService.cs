@@ -25,7 +25,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             _context.Replies.Add(addReply);
             await SaveAsync();
 
-            return Mapper.MapReplyReturn(addReply);
+            return Mapper.MapReply(addReply);
         }
 
         public async Task DeleteReplyAsync(int replyId)
@@ -34,28 +34,45 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             await SaveAsync();
         }
 
-        public async Task<List<CoreReply>> GetRepliesAsync(string search = null, int? commentId = null, int? userId = null, DateTime? date = null, bool? sameComment = null)
+        public async Task<List<CoreReply>> GetRepliesAsync(string search = null, int? commentId = null, int? buyerId = null, int? ownerId = null, DateTime? date = null, bool? sameComment = null, CoreUser shoeOwner = null, CoreUser buyer = null)
         {
             var replies = await _context.Replies
                 .Include(u => u.User)
                 .Include(c => c.Comment)
                 .ThenInclude(s => s.Shoe)
                 .ThenInclude(a => a.User)
-                .Include(f => f.Comment)
                 .ToListAsync();
 
-            List<CoreReply> coreReplies = new List<CoreReply>();
+            if (commentId is not null)
+            {
+                replies = replies.Where(r => r.CommentId == (int)commentId).ToList();
+            }
 
-            if (search is null)
-                coreReplies = replies.Select(Mapper.MapReplyReturn).ToList();
-            //else
-            //    coreReplies = ConvertList(replies, search);
+            var coreReplies = new List<CoreReply>();
+
+            if (search is not null)
+            {
+                replies = ConvertList(replies, search);
+            }
+
+            foreach (var reply in replies)
+            {
+                coreReplies.Add(Mapper.MapReply(reply, shoeOwner, buyer));
+            }
 
             if (date != default)
                 coreReplies = coreReplies.Where(d => d.DatePosted == date).ToList();
 
-            if (userId is not null)
-                coreReplies = coreReplies.Where(u => u.User.UserId == userId).ToList();
+            if (commentId is null)
+            {
+                if (buyerId is not null)
+                    coreReplies = coreReplies.Where(u => u.User.UserId == buyerId).ToList();
+
+                if (ownerId is not null)
+                {
+                    coreReplies = coreReplies.Where(o => o.User.UserId == ownerId).ToList();
+                }
+            }
 
             return coreReplies;
 
@@ -90,17 +107,16 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .ThenInclude(s => s.Shoe)
                 .ThenInclude(a => a.User)
                 .Include(f => f.Comment)
-                //.ThenInclude(g => g.Buyer)
                 .FirstOrDefaultAsync(r => r.ReplyId == replyId);
         }
 
-        //static List<CoreReply> ConvertList(List<Reply> replies, string search)
-        //{
-        //    return replies.FindAll(r => r.ReplyBody.ToLower().Contains(search.ToLower()) ||
-        //    r.DatePosted.ToString().Contains(search) ||
-        //    r.User.FirstName.ToLower().Contains(search.ToLower()) ||
-        //    r.User.LastName.ToLower().Contains(search.ToLower())
-        //    ).Select(Mapper.MapReply).ToList();
-        //}
+        static List<Reply> ConvertList(List<Reply> replies, string search)
+        {
+            return replies.FindAll(r => r.ReplyBody.ToLower().Contains(search.ToLower()) ||
+            r.DatePosted.ToString().Contains(search) ||
+            r.User.FirstName.ToLower().Contains(search.ToLower()) ||
+            r.User.LastName.ToLower().Contains(search.ToLower())
+            ).ToList();
+        }
     }
 }

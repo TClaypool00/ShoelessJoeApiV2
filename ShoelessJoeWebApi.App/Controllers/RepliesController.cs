@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ShoelessJoeWebApi.App.ApiModels;
 using ShoelessJoeWebApi.App.ApiModels.PostModels;
+using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -27,13 +28,25 @@ namespace ShoelessJoeWebApi.App.Controllers
 
         // GET: api/Replies
         [HttpGet]
-        public async Task<ActionResult> GetReplies([FromQuery] string search = null, int? commentId = null, int? userId = null, DateTime? date = null, bool? sameComment = null)
+        public async Task<ActionResult> GetReplies([FromQuery] string search = null, int? commentId = null, int? buyerId = null, int? ownerId = null, DateTime? date = null, bool? partail = null)
         {
             try
             {
+                CoreUser buyer = null;
+                CoreUser owner = null;
                 var replies = new List<ApiReply>();
 
-                replies = (await _service.GetRepliesAsync(search, commentId, userId, date))
+                if (buyerId is not null)
+                {
+                    buyer = await _userService.GetUserAsync((int)buyerId);
+                }
+
+                if (ownerId is not null)
+                {
+                    owner = await _userService.GetUserAsync((int)ownerId);
+                }
+
+                replies = (await _service.GetRepliesAsync(search, commentId, buyerId, ownerId, date, partail, owner, buyer))
                     .Select(ApiMapper.MapReply).ToList();
 
                 if (replies.Count is 0)

@@ -266,7 +266,7 @@ namespace ShoelessJoeWebApi.DataAccess
             return newReply;
         }
 
-        public static CoreReply MapReply(Reply reply, CoreUser shoeOwner = null, CoreUser commentBuyer = null)
+        public static CoreReply MapReply(Reply reply, CoreUser shoeOwner = null, CoreUser commentBuyer = null, int? commentId = null)
         {
             bool userCheck = false;
 
@@ -276,6 +276,15 @@ namespace ShoelessJoeWebApi.DataAccess
                 DatePosted = reply.DatePosted,
                 ReplyBody = reply.ReplyBody,
             };
+
+            if (commentId is not null)
+            {
+                coreReply.CommentId = (int)commentId;
+            }
+            else
+            {
+                coreReply.CommentId = reply.Comment.CommentId;
+            }
 
             if (shoeOwner.UserId == reply.User.UserId)
             {
@@ -300,18 +309,17 @@ namespace ShoelessJoeWebApi.DataAccess
             return coreReply;
         }
 
-        public static CoreReply MapReplyReturn(Reply reply)
+        public static CoreReply MapPartailReply(Reply reply)
         {
             return new CoreReply
             {
                 ReplyId = reply.ReplyId,
-                DatePosted = reply.DatePosted,
                 ReplyBody = reply.ReplyBody,
-
-                CommentId = reply.Comment.CommentId,
-                User = MapUser(reply.User)
+                DatePosted = reply.DatePosted,
+                UserId = reply.UserId
             };
         }
+
         /* -------------------------------
          * |                             |
          * |          School             |
