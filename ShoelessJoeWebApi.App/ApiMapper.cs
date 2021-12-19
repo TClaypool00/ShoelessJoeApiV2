@@ -68,7 +68,8 @@ namespace ShoelessJoeWebApi.App
         {
             return new ApiComment
             {
-                CommentId = comment.Buyer.UserId,
+                CommentId = comment.CommentId,
+                UserId = comment.Buyer.UserId,
                 BuyerFirstName = comment.Buyer.FirstName,
                 BuyerLastName = comment.Buyer.LastName,
 
