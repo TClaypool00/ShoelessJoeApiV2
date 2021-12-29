@@ -17,6 +17,8 @@ namespace ShoelessJoeWebApi.Core.Interfaces
 
         Task UpdateCommentAsync(int commentId, CoreComment comment);
 
+        Task ApproveCommentAsync(int shoeId, int commentId);
+
         Task DeleteCommentAsync(int commentId);
     }
 }

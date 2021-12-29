@@ -22,6 +22,7 @@ namespace ShoelessJoeWebApi.App.ApiModels.PartialModels
 
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
+        public bool IsSold { get; set; }
 
         protected string FormatUrl(string shoeUrl)
         {

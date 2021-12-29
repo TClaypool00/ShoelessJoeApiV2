@@ -8,6 +8,8 @@ namespace ShoelessJoeWebApi.DataAccess.DataModels
     {
         [Key]
         public int CommentId { get; set; }
+        public bool? IsApproved { get; set; } = null;
+        public bool IsShipped { get; set; } = false;
 
         public int ShoeId { get; set; }
         public Shoe Shoe { get; set; }

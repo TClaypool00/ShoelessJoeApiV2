@@ -65,24 +65,26 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             return undeletedIds;
         }
 
-        public async Task<CoreShoe> GetShoeAsync(int shoeId, int? userId = null)
+        public async Task<CoreShoe> GetShoeAsync(int shoeId, int? userId = null, int? commentId = null)
         {
             var shoe = await FindShoeAsync(shoeId, _context);
 
             if (userId is null)
             {
-                return Mapper.MapShoe(shoe);
+                userId = 0;
+            }
+
+            if (((int)userId == shoe.UserId) || (commentId is not null))
+            {
+                return Mapper.MapShoeAndComments(shoe);
+            }
+            else if ((int)userId != shoe.ShoeId)
+            {
+                return Mapper.MapShoeWithComment(shoe, userId);
             }
             else
             {
-                if ((int)userId == shoe.UserId)
-                {
-                    return Mapper.MapShoeAndComments(shoe);
-                }
-                else
-                {
-                    return Mapper.MapShoeWithComment(shoe, userId);
-                }
+                return Mapper.MapShoe(shoe);
             }
         }
 

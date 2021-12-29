@@ -8,7 +8,7 @@ namespace ShoelessJoeWebApi.Core.Interfaces
     {
         Task<List<CoreShoe>> GetShoesAsync(string search = null, int? userId = null, int? modelId = null);
 
-        Task<CoreShoe> GetShoeAsync(int shoeId, int? userId = null);
+        Task<CoreShoe> GetShoeAsync(int shoeId, int? userId = null, int? commentId = null);
 
         Task<bool> ShoeExistAsync(int shoeId);
 

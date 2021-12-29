@@ -32,6 +32,6 @@ namespace ShoelessJoeWebApi.App.ApiModels
         public bool HasComment { get; set; }
 
         public ApiComment Comment { get; set; } = null;
-        public List<ApiComment> Comments { get; set; }
+        public List<ApiComment> Comments { get; set; } = new List<ApiComment>();
     }
 }

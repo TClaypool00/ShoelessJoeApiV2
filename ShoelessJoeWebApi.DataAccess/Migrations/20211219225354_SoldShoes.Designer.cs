@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoelessJoeWebApi.DataAccess.DataModels;
 
 namespace ShoelessJoeWebApi.DataAccess.Migrations
 {
     [DbContext(typeof(ShoelessdevContext))]
-    partial class ShoelessdevContextModelSnapshot : ModelSnapshot
+    [Migration("20211219225354_SoldShoes")]
+    partial class SoldShoes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,9 +73,6 @@ namespace ShoelessJoeWebApi.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool?>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsShipped")
                         .HasColumnType("bit");
 
                     b.Property<int>("ShoeId")

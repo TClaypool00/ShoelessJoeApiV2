@@ -48,7 +48,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
             return Mapper.MapCommentWithReplies(await FindCommentAsync(commentId));
         }
 
-        public async Task<List<CoreComment>> GetCommentsAsync(string search = null, int? shoeId = null, DateTime? date = null, bool? sellerAndBuyer = null)
+        public async Task<List<CoreComment>> GetCommentsAsync(string search = null, int? shoeId = null, DateTime? date = null, bool? withReply = null)
         {
             var comments = await _context.Comments
                 .Include(a => a.Buyer)
@@ -57,9 +57,9 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .ThenInclude(g => g.User)
                 .ToListAsync();
 
-            List<CoreComment> coreComments = new List<CoreComment>();
+            List<CoreComment> coreComments = new();
 
-            coreComments = ConvertList(comments, coreComments, search);
+            coreComments = ConvertList(comments, coreComments, search, withReply);
 
             if (date != null)
                 coreComments = coreComments.Where(a => a.DatePosted == date).ToList();
@@ -91,7 +91,7 @@ namespace ShoelessJoeWebApi.DataAccess.Services
                 .FirstOrDefaultAsync(c => c.CommentId == commentId);
         }
 
-        static List<CoreComment> ConvertList(List<Comment> comments, List<CoreComment> coreComments, string search = null)
+        static List<CoreComment> ConvertList(List<Comment> comments, List<CoreComment> coreComments, string search = null, bool? withReply = null)
         {
             if (search is not null)
             {
@@ -104,13 +104,44 @@ namespace ShoelessJoeWebApi.DataAccess.Services
 
             if (comments.Count > 0)
             {
-                foreach (var comment in comments)
+                if (withReply is true)
                 {
-                    coreComments.Add(Mapper.MapCommentWithReplies(comment));
+                    foreach (var comment in comments)
+                    {
+                        coreComments.Add(Mapper.MapCommentWithReplies(comment));
+                    }
+                }
+                else
+                {
+                    foreach (var comment in comments)
+                    {
+                        coreComments.Add(Mapper.MapComment(comment));
+                    }
                 }
             }
 
             return coreComments;
+        }
+
+        public async Task ApproveCommentAsync(int shoeId, int commentId)
+        {
+            var dataComments = _context.Comments.Where(s => s.Shoe.ShoeId == shoeId).ToList();
+
+            foreach (var comment in dataComments)
+            {
+                if (comment.CommentId == commentId)
+                {
+                    comment.IsApproved = true;
+                }
+                else
+                {
+                    comment.IsApproved = false;
+                }
+            }
+
+            _context.Comments.UpdateRange(dataComments);
+
+            await SaveAsync();
         }
     }
 }

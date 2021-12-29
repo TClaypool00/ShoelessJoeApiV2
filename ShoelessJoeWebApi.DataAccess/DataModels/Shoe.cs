@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShoelessJoeWebApi.DataAccess.DataModels
 {
@@ -11,6 +10,7 @@ namespace ShoelessJoeWebApi.DataAccess.DataModels
         public bool? BothShoes { get; set; } = false;
         public double? RightSize { get; set; } = 0;
         public double? LeftSize { get; set; } = 0;
+        public bool IsSold { get; set; } = false;
 
         public User User { get; set; }
         public int UserId { get; set; }

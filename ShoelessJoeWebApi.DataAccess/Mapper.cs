@@ -51,9 +51,11 @@ namespace ShoelessJoeWebApi.DataAccess
         {
             return new Comment
             {
+                CommentId = comment.CommentId,
                 BuyerId = comment.Buyer.UserId,
                 CommentBody = comment.CommentBody,
-                DatePosted = DateTime.Now,
+                IsApproved = comment.IsApproved,
+                DatePosted = comment.DatePosted,
                 ShoeId = comment.Shoe.ShoeId
             };
         }
@@ -90,15 +92,13 @@ namespace ShoelessJoeWebApi.DataAccess
             return coreComment;
         }
 
-        public static CoreComment MapPartialComment(Comment comment)
+        public static CoreComment MapComment(Comment comment)
         {
-            return new CoreComment
-            {
-                CommentId = comment.CommentId,
-                CommentBody = comment.CommentBody,
-                DatePosted = comment.DatePosted,
-                Buyer = MapUser(comment.Buyer)
-            };
+            var coreComment = MapCommentForReply(comment);
+            coreComment.Shoe = MapShoe(comment.Shoe);
+
+            return coreComment;
+
         }
 
         public static CoreComment MapCommentForReply(Comment comment)
@@ -109,6 +109,7 @@ namespace ShoelessJoeWebApi.DataAccess
                 Buyer = MapUser(comment.Buyer),
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted,
+                IsApproved = comment.IsApproved
             };
         }
 
@@ -286,24 +287,30 @@ namespace ShoelessJoeWebApi.DataAccess
                 coreReply.CommentId = reply.Comment.CommentId;
             }
 
-            if (shoeOwner.UserId == reply.User.UserId)
+            if (shoeOwner is not null)
             {
-                coreReply.User = shoeOwner;
-                userCheck = true;
+                if (shoeOwner.UserId == reply.User.UserId)
+                {
+                    coreReply.User = shoeOwner;
+                    userCheck = true;
+                }
             }
 
-            if (!userCheck)
+            if (commentBuyer is not null)
             {
-                if (commentBuyer.UserId == reply.User.UserId)
+                if (!userCheck)
                 {
-                    coreReply.User = commentBuyer;
-                    userCheck = true;
+                    if (commentBuyer.UserId == reply.User.UserId)
+                    {
+                        coreReply.User = commentBuyer;
+                        userCheck = true;
+                    }
                 }
             }
 
             if (!userCheck)
             {
-                coreReply.User = MapUser(reply.User);
+                coreReply.UserId = reply.UserId;
             }
 
             return coreReply;
@@ -361,11 +368,13 @@ namespace ShoelessJoeWebApi.DataAccess
                 LeftSize = shoe.LeftSize,
                 UserId = shoe.User.UserId,
                 ModelId = shoe.Model.ModelId,
-                
+                IsSold = shoe.IsSold
             };
 
             if (shoe.ShoeId != 0)
+            {
                 dataShoe.ShoeId = shoe.ShoeId;
+            }
 
             return dataShoe;
         }
@@ -387,7 +396,7 @@ namespace ShoelessJoeWebApi.DataAccess
         public static CoreShoe MapShoeAndComments(Shoe shoe)
         {
             var coreShoe = MapShoe(shoe);
-            coreShoe.Comments = shoe.Comments.Select(MapPartialComment).ToList();
+            coreShoe.Comments = shoe.Comments.Select(MapComment).ToList();
 
             return coreShoe;
         }
@@ -400,6 +409,7 @@ namespace ShoelessJoeWebApi.DataAccess
                 BothShoes = shoe.BothShoes,
                 RightSize = shoe.RightSize,
                 LeftSize = shoe.LeftSize,
+                IsSold = shoe.IsSold,
 
                 Model = MapModel(shoe.Model),
                 User = MapUser(shoe.User),

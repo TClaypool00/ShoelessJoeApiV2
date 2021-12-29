@@ -42,7 +42,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
             if (shoes.Count == 0)
             {
-                return NotFound("No Shoes found");
+                return Ok("No Shoes found.");
             }
 
             return Ok(shoes);

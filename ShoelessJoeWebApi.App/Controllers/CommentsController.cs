@@ -38,7 +38,7 @@ namespace ShoelessJoeWebApi.App.Controllers
 
                 if(comments.Count == 0)
                 {
-                    return NotFound("No comments found.");
+                    return Ok("No comments found.");
                 }
                 return Ok(comments);
             }
@@ -97,7 +97,69 @@ namespace ShoelessJoeWebApi.App.Controllers
                 return StatusCode(500, e);
             }
 
-            return Ok("Comment has been updated!");
+            return Ok(CommentUpdated());
+        }
+
+        [HttpPut("deny/{commentId}")]
+        public async Task<IActionResult> DenyComment(int commentId)
+        {
+            try
+            {
+                var comment = await _service.GetCommentAsync(commentId);
+                comment.IsApproved = false;
+
+                await _service.UpdateCommentAsync(commentId, comment);
+
+                return Ok(CommentUpdated());
+            }
+            catch (NullReferenceException)
+            {
+                return NotFound(NoCommentWithId(commentId));
+            }
+            catch(Exception e)
+            {
+                Error.SendErrorMessage(e, Error.ControllerNames.Comments);
+                return StatusCode(500);
+            }
+            
+        }
+
+        [HttpPut("approve/{commentId}&{shoeId}")]
+        public async Task<IActionResult> ApproveComment(int commentId, int shoeId)
+        {
+            var shoe = await ShoeService.GetShoeAsync(shoeId, null, commentId);
+
+            if (shoe.Comments.Count > 0)
+            {
+                await _service.ApproveCommentAsync(shoeId, commentId);
+            }
+
+            shoe.IsSold = true;
+            await ShoeService.UpdateShoeAsync(shoeId, shoe);
+
+            return Ok(CommentUpdated());
+        }
+
+        [HttpPut("shipped/{commentId}")]
+        public async Task<IActionResult> UpdateShippedComment(int commentId)
+        {
+            try
+            {
+                var comment = await _service.GetCommentAsync(commentId);
+                comment.IsShipped = true;
+                await _service.UpdateCommentAsync(commentId, comment);
+
+                return Ok(CommentUpdated());
+            }
+            catch(NullReferenceException)
+            {
+                return NotFound(NoCommentWithId(commentId));
+            }
+            catch(Exception e)
+            {
+                Error.SendErrorMessage(e, Error.ControllerNames.Comments);
+                return StatusCode(commentId);
+            }
         }
 
         // POST: api/Comments
@@ -106,8 +168,7 @@ namespace ShoelessJoeWebApi.App.Controllers
         {
             try
             {
-
-                if (await _service.CommentExistAsync(comment.CommentId))
+                if (await _service.CommentExistAsync(comment.UserId))
                     return BadRequest("You already have a comment");
 
                 var coreComment = await _service.AddCommentAsync(await ApiMapper.MapComment(comment, UserService, ShoeService));
@@ -121,7 +182,7 @@ namespace ShoelessJoeWebApi.App.Controllers
                 if (!await ShoeService.ShoeExistAsync(comment.ShoeId))
                     return NotFound(ShoesController.NoShoeWithId(comment.ShoeId));
 
-                return NotFound(UsersController.NoUser(comment.ShoeId));
+                return NotFound(UsersController.NoUser(comment.UserId));
             }
         }
 
@@ -129,7 +190,6 @@ namespace ShoelessJoeWebApi.App.Controllers
         [HttpDelete("{commentId}")]
         public async Task<ActionResult> DeleteComment(int commentId)
         {
-
             try
             {
                 await _service.DeleteCommentAsync(commentId);
@@ -138,17 +198,17 @@ namespace ShoelessJoeWebApi.App.Controllers
             {
                 return NotFound(NoCommentWithId(commentId));
             }
-            return Ok("Comment has been deleted");
+            return Ok("Comment has been deleted.");
         }
 
         public static string NoCommentWithId(int commentId)
         {
-            return $"No comment with an id of {commentId} ";
+            return $"No comment with an id of {commentId}.";
         }
 
-        static string IdsMustBeGreater()
+        private static String CommentUpdated()
         {
-            return $"Both ids must be greater than zero.";
+            return "Comment updated!";
         }
     }
 }

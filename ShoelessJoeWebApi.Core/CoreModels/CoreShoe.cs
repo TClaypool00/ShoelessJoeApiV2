@@ -8,6 +8,7 @@ namespace ShoelessJoeWebApi.Core.CoreModels
         public bool? BothShoes { get; set; }
         public double? RightSize { get; set; }
         public double? LeftSize { get; set; }
+        public bool IsSold { get; set; }
 
         public CoreUser User { get; set; }
         public int UserId { get; set; }

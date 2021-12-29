@@ -75,20 +75,17 @@ namespace ShoelessJoeWebApi.App
 
                 CommentBody = comment.CommentBody,
                 DatePosted = comment.DatePosted.ToString(),
+                IsApproved = comment.IsApproved,
+                IsShipped = comment.IsShipped
             };
         }
 
         public static ApiComment MapCommentWithReplies(CoreComment comment)
         {
-            return new ApiComment
-            {
-                CommentId = comment.CommentId,
-                BuyerFirstName = comment.Buyer.FirstName,
-                BuyerLastName = comment.Buyer.LastName,
-                CommentBody = comment.CommentBody,
-                DatePosted = comment.DatePosted.ToString(),
-                Replies = comment.Replies.Select(MapPartialReply).ToList()
-            };
+            var apiComment = MapComment(comment);
+            apiComment.Replies = comment.Replies.Select(MapPartialReply).ToList();
+
+            return apiComment;
         }
 
         public async static Task<CoreComment> MapComment(PostComment comment, IUserService userService, IShoeService shoeService, int commentId = 0)
@@ -102,24 +99,20 @@ namespace ShoelessJoeWebApi.App
             {
                 Buyer = await userService.GetUserAsync(comment.UserId),
                 Shoe = await shoeService.GetShoeAsync(comment.ShoeId),
-                
+
                 CommentBody = comment.CommentBody,
-                DatePosted = DateTime.Parse(comment.DatePosted)
+                DatePosted = DateTime.Parse(comment.DatePosted),
+                IsApproved = comment.IsApproved,
+                IsShipped = comment.IsShipped
             };
         }
 
         public static ApiComment MapComment(CoreComment comment, ApiShoe shoe)
         {
-            return new ApiComment
-            {
-                CommentId = comment.Buyer.UserId,
-                BuyerFirstName = comment.Buyer.FirstName,
-                BuyerLastName = comment.Buyer.LastName,
+            var apiComment = MapComment(comment);
+            apiComment.ShoeId = shoe.ShoeId;
 
-                ShoeId = shoe.ShoeId,
-                CommentBody = comment.CommentBody,
-                DatePosted = comment.DatePosted.ToString()
-            };
+            return apiComment;
         }
 
 
@@ -475,6 +468,7 @@ namespace ShoelessJoeWebApi.App
             {
                 ShoeId = shoe.ShoeId,
                 BothShoes = shoe.BothShoes,
+                IsSold = shoe.IsSold,
                 LeftShoeRight = shoe.ShoeImage.LeftShoeRight,
                 ManufacterName = shoe.Model.Manufacter.Name,
                 UserId = shoe.User.UserId,
@@ -489,6 +483,7 @@ namespace ShoelessJoeWebApi.App
             {
                 ShoeId = shoe.ShoeId,
                 BothShoes = shoe.BothShoes,
+                IsSold = shoe.IsSold,
                 RightSize = shoe.RightSize,
                 LeftSize = shoe.LeftSize,
                 LeftShoeRight = shoe.ShoeImage.LeftShoeRight,
@@ -508,7 +503,6 @@ namespace ShoelessJoeWebApi.App
             }
             else if (shoe.Comments.Count > 0)
             {
-                apiShoe.Comments = new List<ApiComment>();
                 apiShoe.Comments = shoe.Comments.Select(MapComment).ToList();
             }
 
