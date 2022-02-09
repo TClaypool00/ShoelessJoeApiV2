@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ShoelessJoeWebApi.DataAccess.DataModels.BillService;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ShoelessJoeWebApi.DataAccess.DataModels
@@ -31,5 +32,6 @@ namespace ShoelessJoeWebApi.DataAccess.DataModels
         public List<Friend> SenderFriends { get; set; }
         public List<Post> Posts { get; set; }
         public List<CommentAndSeller> CommentAndSellers { get; set; }
+        public List<Bill> Bills { get; set; }
     }
 }

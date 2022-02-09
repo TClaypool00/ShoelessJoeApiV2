@@ -1,5 +1,6 @@
 ﻿using ShoelessJoeWebApi.Core.CoreModels;
 using ShoelessJoeWebApi.DataAccess.DataModels;
+using ShoelessJoeWebApi.DataAccess.DataModels.BillService;
 using System;
 using System.Linq;
 
@@ -38,6 +39,46 @@ namespace ShoelessJoeWebApi.DataAccess
                 City = address.City,
                 ZipCode = address.ZipCode,
                 State = MapState(address.State)
+            };
+        }
+
+        /* -------------------------------
+         * |                             |
+         * |            Bill             |
+         * |                             |
+         * -------------------------------
+         */
+        public static Bill MapBill(CoreBill bill)
+        {
+            var dataBill = new Bill
+            {
+                BillName = bill.BillName,
+                DueDate = bill.DueDate,
+                AmountDue = bill.AmountDue,
+                IsLate = bill.IsLate,
+                IsPaid = bill.IsPaid,
+                UserId = bill.User.UserId
+            };
+
+            if (bill.BillId != 0)
+            {
+                dataBill.BillId = bill.BillId;
+            }
+
+            return dataBill;
+        }
+
+        public static CoreBill MapBill(Bill bill)
+        {
+            return new CoreBill
+            {
+                BillId = bill.BillId,
+                BillName = bill.BillName,
+                DueDate = bill.DueDate,
+                AmountDue = bill.AmountDue,
+                IsLate = bill.IsLate,
+                IsPaid = bill.IsPaid,
+                User = MapUser(bill.User)
             };
         }
 
